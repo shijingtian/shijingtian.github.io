@@ -4186,6 +4186,11 @@ li.feature-2 {
     opacity:1;
     visibility:visible
 }
+.tencent {
+    width:35px;
+    height:35px;
+    position:relative
+}
 .tencentInner img {
     border-radius:0;
     width:121px;
