@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">蝉3301</title>
+  <title itemprop="name">博客搭建自学注意事项.md | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -276,155 +276,258 @@
   </div>
 </header>
 
-      <div class="blank" style="padding-top: 0px;"></div>
-<div id="content" class="site-content">
-  
-  <div class="notice" style="margin-top:60px">
-    <i class="iconfont icon-notification">
-    </i>
-    <div class="notice-content">PE结构研读中(IAT、EAT)</div>
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png);" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      博客搭建自学注意事项.md</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shijingtian.github.io">
+            <img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/GhostSoul.ico">
+          </a>
+        </span>
+        <span>
+          <a href="shijingtian.github.io">蝉3301</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2020-1-29<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
   </div>
-  
-  <div class="top-feature-row">
-  <h1 class="fes-title" style="font-family: 'Ubuntu', sans-serif;">
-  <i class="fa fa-anchor" aria-hidden="true">
-  </i>
-  START:DASH!!</h1>
-  
-</div>
+
+<div id="content" class="site-content">
   <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
-      <h1 class="main-title" style="font-family: 'Ubuntu', sans-serif;">
-      <i class="fa fa-envira" aria-hidden="true"></i>
-      Discovery</h1>
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h2 id="大体操作"><a href="#大体操作" class="headerlink" title="大体操作"></a>大体操作</h2><p>在\hexo的_config.yml里面有</p>
+<pre><code class="subtitle:">description: 好少年光芒万丈
+keywords:
+author: 蝉3301
+language: zh-cn
+timezone:
+
+#这里注意deploy和backup的格式即可
+deploy:
+  type: git
+  repo: 
+    github: git@github.com:shijingtian/shijingtian.github.io.git
+    # github: https://github.com/honjun/honjun.github.io.git
+    # coding: https://git.coding.net/hojun/hojun.git
+  branch: master
+
+# backup
+backup:
+  type: git
+  message: backup my blog of https://shijingtian.github.io/
+  repository:
+    github: https://github.com/honjun/honjun.github.io.git/tree/back
+    #coding: https://git.coding.net/hojun/hojun.git,backup
+</code></pre>
+<p>在\themes的_config.yml里面有</p>
+<pre><code class="#这里注意地址用的都是jsdeliver搭建的cdn"># site name
+prefixName: 阿天
+siteName: 蝉3301
+# favicon and site master avatar
+favicon: /images/GhostSoul.ico
+avatar: /img/custom/avatar.jpg
+url: https://shijingtian.github.io
+description: T R Y
+cdn: https://cdn.jsdelivr.net/gh/shijingtian/cdn@master
+pjax: 1
+
+notice: PE结构研读中(IAT、EAT)
+lazyloadImg: https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg
+
+这里要哪个就用哪个就行，想要增加后面的zh-cn文件里面添加一下就行，后面背景什么的都一样不再赘余
+menus:
+  首页: { path: /, fa: fa-fort-awesome faa-shake }
+  归档: { path: /archives, fa: fa-archive faa-shake, submenus: { 
+    技术: {path: /categories/技术/, fa: fa-code }, 
+    # 生活: {path: /categories/生活/, fa: fa-file-text-o }, 
+    # 资源: {path: /categories/资源/, fa: fa-cloud-download }, 
+    # 随想: {path: /categories/随想/, fa: fa-commenting-o },
+    # 转载: {path: /categories/转载/, fa: fa-book }
+
+</code></pre>
+<h2 id="一些代码"><a href="#一些代码" class="headerlink" title="一些代码"></a>一些代码</h2><p>更新中用到的代码</p>
+<pre><code>更新hexo到github并发布
+
+hexo -g &amp;&amp; -d
+
+更新cdn
+
+git add .
+git commit -m &quot;update&quot;
+git push
+
+建立新的md文件
+
+hexo new xx.md
+</code></pre><h2 id="期间遇到的坑"><a href="#期间遇到的坑" class="headerlink" title="期间遇到的坑"></a>期间遇到的坑</h2><p>当时有一个social图标，wechat会有相应二维码展示，我qq用的比较多，想在qq上也用上二维码，但发现仅仅改变_config.yml的代码让其和wechat一样，发现不行,没有效果，然后就是个人的操作了。</p>
+<p>首先去网页源码去观察到了wechat的不同之处</p>
+<pre><code>                    &lt;li class=&quot;wechat&quot;&gt;
+                      &lt;a href=&quot;/#&quot;&gt;
+                        &lt;img src=&quot;https://cdn.jsdelivr.net/gh/shijingtian/cdn@master/img/social/wechat.png&quot;&gt;
+                      &lt;/a&gt;
+                      &lt;div class=&quot;wechatInner&quot;&gt;
+                        &lt;img src=&quot;https://cdn.jsdelivr.net/gh/shijingtian/cdn@master/img/custom/wechat_q.png&quot;&gt;
+                      &lt;/div&gt;
+                    &lt;/li&gt;
+</code></pre><p>有一个wechatInner，大概是一个已经标定好的类，于是在headertop.ejs里面找到了他，看了看语法，根据模样我在里面加了一个筛选条件</p>
+<pre><code>&lt;% if (i == &#39;wechat&#39; || i == &#39;tencent&#39;) {%>
+				<% if(i="=" 'wechat') {%>
+					<li class="wechat">
+					  <a href="<%= theme.social[i].url%>">
+						<img src="<%- (theme.cdn || '') + theme.social[i].img%>">
+					  </a>
+					  <div class="wechatInner">
+						<img src="<%- (theme.cdn || '') + theme.social[i].qrcode%>">
+					  </div>
+					</li>
+				<%} else {%&gt; &lt;li class="&quot;tencent&quot;&gt;" &lt;a href="&quot;&lt;%=" theme.social[i].url%&gt;&quot;&gt; &lt;img src="&quot;&lt;%-" (theme.cdn || &#39;&#39;) + theme.social[i].img%&gt;&quot;&gt; &lt; a&gt; &lt;div theme.social[i].qrcode%&gt;&quot;&gt; div&gt; li&gt; &lt;% } %&gt; { &lt;li&gt; theme.social[i].url%&gt;&quot; target="&quot;_blank&quot;" title="&quot;&lt;%-" i %&gt;&quot;&gt; < code></%}></%></code></pre><p>运行发现还是不行，请教大神之后，明白还要在style.css文件里面添加相应的类别才行，添加如下（和wechat一致就可以）</p>
+<pre><code>.tencent {
+    width:35px;
+    height:35px;
+    position:relative
+}
+.tencentInner img {
+    border-radius:0;
+    width:121px;
+    height:auto;
+    padding:0;
+    background:none
+}
+.tencentInner {
+    width:121px;
+    height:121px;
+    padding:10px;
+    background:rgba(0,0,0,.4);
+    top:40px;
+    left:-40px;
+    -webkit-transform:translate3d(0,50px,0);
+    transform:translate3d(0,50px,0);
+    opacity:0
+}
+.tencentInner:before {
+    content:&quot;&quot;;
+    position:absolute;
+    top:-30px;
+    left:50%;
+    margin-left:-15px;
+    border-width:15px;
+    border-style:solid;
+    border-color:transparent transparent rgba(0,0,0,.4) transparent
+}
+.tencentInner {
+    position:absolute;
+    border-radius:8px;
+    transition:.7s all ease;
+    -webkit-transition:.7s all ease;
+    -moz-transition:.7s all linear;
+    -o-transition:.7s all ease;
+    -ms-transition:.7s all ease
+}
+.tencent:hover .tencentInner {
+    -webkit-transform:translate3d(0,16px,0);
+    transform:translate3d(0,16px,0);
+    opacity:1;
+    visibility:visible
+}
+</code></pre><p>最后实现效果<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/build_blog/xiaoguo.png" alt="最终效果图————很开心（^ - ^）"></p>
+<p>第一次完整搭建了自己的博客，学到了许多，后面就赶紧把最近学的PE文件格式的学习笔记搭上来。还是需要不断努力，翻滚吧，阿天~~~</p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏
+            <div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@master/img/custom/donate/aipay.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@master/img/custom/donate/we.jpg"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+        
+          
+            <div class="post-nepre full next">
+          
+            <a href="/2019/12/16/日常逆向ctf练习/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                逆向ctf练习</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
       
-  <!-- 首页默认取最最新文章集 -->
-  
-    
-<article  class="post post-list-thumb post-list-thumb-left"  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "GyC3NzMvd0hT9Yyd2hYIC0MN-gzGzoHsz",
+        appKey: "mgOpfzbkHYqU92CV4IDlAUHQ",
+        path: window.location.pathname,
+        placeholder: "你是我一生只会遇见一次的惊喜 ..."
+      })
+  }
+</script>
 
-  <div class="post-thumb">
-    <a href="/2020/01/29/博客搭建自学注意事项/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-1-29 19:01</div>
-      <a href="/2020/01/29/博客搭建自学注意事项/" class="post-title">
-        <h3>博客搭建自学注意事项.md</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/技术/">技术</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>博客搭建自学注意事项</p>
-        <div class="post-bottom">
-          <a href="/2020/01/29/博客搭建自学注意事项/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shijingtian.github.io" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/GhostSoul.ico" itemprop="image" alt="蝉3301" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shijingtian.github.io" itemprop="url" rel="author">蝉3301</a>
+            </h3>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2019/12/16/日常逆向ctf练习/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2019-12-16 09:12</div>
-      <a href="/2019/12/16/日常逆向ctf练习/" class="post-title">
-        <h3>逆向ctf练习</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/技术/">技术</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>逆向ctf练习</p>
-        <div class="post-bottom">
-          <a href="/2019/12/16/日常逆向ctf练习/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb post-list-thumb-left"  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2018/12/12/Hexo-Theme-Sakura/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2018-12-12 22:12</div>
-      <a href="/2018/12/12/Hexo-Theme-Sakura/" class="post-title">
-        <h3>Hexo-Theme-Sakura</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/技术/">技术</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>hexo-sakura主题使用教程</p>
-        <div class="post-bottom">
-          <a href="/2018/12/12/Hexo-Theme-Sakura/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-
-
-    </main>
-      <!-- 首页默认取最最新文章集 -->
-    <!--  -->
-  </div>
-  
+        <hr>
+        <p><i class="iconfont icon-write"></i>一个好奇的人</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
 </div>
+
+
 
     </div>    
     <div class="ins-search">
