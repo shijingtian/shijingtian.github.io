@@ -4186,14 +4186,14 @@ li.feature-2 {
     opacity:1;
     visibility:visible
 }
-.tecentInner img {
+.tencentInner img {
     border-radius:0;
     width:121px;
     height:auto;
     padding:0;
     background:none
 }
-.tecentInner {
+.tencentInner {
     width:121px;
     height:121px;
     padding:10px;
@@ -4204,7 +4204,7 @@ li.feature-2 {
     transform:translate3d(0,50px,0);
     opacity:0
 }
-.tecentInner:before {
+.tencentInner:before {
     content:"";
     position:absolute;
     top:-30px;
@@ -4214,7 +4214,7 @@ li.feature-2 {
     border-style:solid;
     border-color:transparent transparent rgba(0,0,0,.4) transparent
 }
-.tecentInner {
+.tencentInner {
     position:absolute;
     border-radius:8px;
     transition:.7s all ease;
@@ -4223,7 +4223,7 @@ li.feature-2 {
     -o-transition:.7s all ease;
     -ms-transition:.7s all ease
 }
-.tecent:hover .tecentInner {
+.tencent:hover .tencentInner {
     -webkit-transform:translate3d(0,16px,0);
     transform:translate3d(0,16px,0);
     opacity:1;
