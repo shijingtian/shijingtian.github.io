@@ -4186,6 +4186,49 @@ li.feature-2 {
     opacity:1;
     visibility:visible
 }
+.tecentInner img {
+    border-radius:0;
+    width:121px;
+    height:auto;
+    padding:0;
+    background:none
+}
+.tecentInner {
+    width:121px;
+    height:121px;
+    padding:10px;
+    background:rgba(0,0,0,.4);
+    top:40px;
+    left:-40px;
+    -webkit-transform:translate3d(0,50px,0);
+    transform:translate3d(0,50px,0);
+    opacity:0
+}
+.tecentInner:before {
+    content:"";
+    position:absolute;
+    top:-30px;
+    left:50%;
+    margin-left:-15px;
+    border-width:15px;
+    border-style:solid;
+    border-color:transparent transparent rgba(0,0,0,.4) transparent
+}
+.tecentInner {
+    position:absolute;
+    border-radius:8px;
+    transition:.7s all ease;
+    -webkit-transition:.7s all ease;
+    -moz-transition:.7s all linear;
+    -o-transition:.7s all ease;
+    -ms-transition:.7s all ease
+}
+.tecent:hover .tecentInner {
+    -webkit-transform:translate3d(0,16px,0);
+    transform:translate3d(0,16px,0);
+    opacity:1;
+    visibility:visible
+}
 .searchbox {
     float:right;
     height:75px;
