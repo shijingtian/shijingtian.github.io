@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">archive_a: 2020 | 蝉3301</title>
+  <title itemprop="name">恶意代码分析-lab1 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -276,149 +276,173 @@
   </div>
 </header>
 
-      <div class="blank" style="padding-top: 75px;">
-</div>
-<div id="content" class="site-content">
-  <div id="main">
-    <header class="page-header">
-      <h1 class="cat-title">
-      归档</h1>
-      <span class="cat-des">
-        <p>
-        Archives</p>
-      </span>
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png);" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      恶意代码分析-lab1</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shijingtian.github.io">
+            <img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/GhostSoul.ico">
+          </a>
+        </span>
+        <span>
+          <a href="shijingtian.github.io">蝉3301</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2020-2-13<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
-    <div id="main-part">
-      <article class="art">
-        <div class="art-main">
-          <div class="art-content">
-            <div id="archives">
-              <p style="text-align:right;">
-                [<span id="al_expand_collapse" style="cursor: s-resize;">
-                全部展开/收缩</span>
-              ]</p>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2020年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      02月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/2020/02/13/恶意代码分析-lab1/">
-                          <span style="color:#0bf;">
-                          13日11:03:00</span>
-                          恶意代码分析-lab1
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      01月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/2020/01/29/博客搭建自学注意事项/">
-                          <span style="color:#0bf;">
-                          29日19:45:40</span>
-                          博客搭建自学注意事项
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2019年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      12月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/2019/12/16/日常逆向ctf练习/">
-                          <span style="color:#0bf;">
-                          16日09:07:01</span>
-                          逆向ctf练习
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2018年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      12月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/2018/12/12/Hexo-Theme-Sakura/">
-                          <span style="color:#0bf;">
-                          12日22:16:01</span>
-                          Hexo-Theme-Sakura
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <p>之前学了PE结构，dll注入以及一些相关的逆向知识后，正式开始恶意代码分析的学习，先从这本恶意代码分析开始，争取一个星期把它消化完。</p>
+<h2 id="lab1-1"><a href="#lab1-1" class="headerlink" title="lab1-1"></a>lab1-1</h2><p><a href="http://virustotal.com" target="_blank" rel="noopener">virustotal.com</a><br>可以直接上传文件查看分析报告，会对比其中相关的哈希值，查找库是否此文件有问题第一章的问题稍微都简单一些，这里就简单带过<br><strong>分析：</strong><br>有病毒特征，特征如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/1-1.png" alt="病毒特征"><br>从PE-stu查看文件可知，时间戳的二进制是0x4d0e2fd3<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/1-2.png" alt="病毒特征"><br>然后就是转换成时间的过程，这里应该有更简单的方法，但是我想学习并练习一下C++的使用，所以写了一个程序</p>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;ctime&gt;
+using namespace std;
+
+void unix2time(int n, char strTime[], int buflen)
+{
+    struct tm tm = *localtime((time_t *)&amp;n);    //这里的定义不太清楚，我傻了
+    strftime(strTime, buflen-1, &quot;%Y-%m-%d %H:%M:%S&quot;, &amp;tm);
+        strTime[buflen-1] = &#39;\0&#39;;
+}
+
+int main(void)
+{
+    int n;
+    char strTime[100]={0};
+    scanf(&quot;%p&quot;,&amp;n);            //输入十六进制，记住p，记住是&amp;n不是n
+    unix2time(n,strTime,sizeof(strTime));
+    printf(&quot;%s&quot;, strTime);
+}
+</code></pre><p>exe时间：2010-12-20 00:16:19<br>dll时间：2010-12-20 00:16:38<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/1-3.png" alt="病毒特征"><br>有效字符串过少，但import库里面的函数数目正常，查找字符串也是正常，exe程序应该是未混淆未加壳<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/1-4.png" alt="病毒特征"><br>copy find creat file可以看出创建并查找了某个文件，可能是进行了电脑上系统文件的替换<br>中毒情况是屏幕背景变黑，应该是改变屏幕程序的文件了</p>
+<p>dll文件里有CreateProcess和Sleep，同时import导入了WS2_32.dll的库的一些函数，其中一些函数提供了联网的功能</p>
+<p>从dll文件中可以看到一个ip地址，以为是教学使用所以是具体的，真正恶意代码一般是路由的公网ip</p>
+<p>文件目的：dll是一个后门，exe用来安装运行dll文件的</p>
+<p>其中exec与sleep结合使用，需要特别关注，可能是通过网络给后门程序传达命令的</p>
+<p>##lab1-2<br><strong>分析：</strong><br>有病毒特征，加upx壳，尝试脱壳，esp定律，走到ep，dump出来就行</p>
+<p>查看导入函数：<br>StartServiceCtrlDispatcherA、CreateServiceA、OpenSCManagerA（advapi32.dll）</p>
+<blockquote>
+<p>StartServiceCtrlDispatcherA：将服务进程的主线程连接到服务控制管理器，这使得线程成为调用进程的服务控制调度程序线程。</p>
+</blockquote>
+<p>CreateThread（kernal.dll）</p>
+<p>InternetOpenUrlA（wininet.dll）</p>
+<blockquote>
+<p>访问相关网络资源</p>
+</blockquote>
+<p>总结：创建一个线程，创建新的服务并控制</p>
+<p>##lab1-3<br><strong>分析：</strong><br>有病毒特征，加了壳，是FSG壳，但是看开头三个地址就知道那是最终的目标，然后f8下去找到的入口，参考图如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/3-1.png" alt="病毒特征"></p>
+<p>有两个新库oleaut32.dll、ole32</p>
+<p>CoCreateInstance（ole32）<br>SysAllocString（oleaut32.dll）</p>
+<p>最终感染就是打开一个网站<a href="http://www.malwareanalysisbook.com/ad.html" target="_blank" rel="noopener">http://www.malwareanalysisbook.com/ad.html</a></p>
+<p>##lab1-4<br><strong>分析：</strong><br>有病毒特征，无壳未混淆，输入库结构清晰</p>
+<p>有create、movefile之类的函数，还有openprocess，loadresource的函数</p>
+<blockquote>
+<p>GetWindowsDirectoryA：得到系统文件目录</p>
+</blockquote>
+<p>通过分析好像是修改了一个wupdmgr的程序，网络查阅发现是windows更新的程序（可删除），但是有病毒伪造的可能，所以确定了，新建了wupdmgr文件，植入病毒</p>
+<p>这里书本给了提示，通过resource hacker可以发现此文件在PE文件里藏了一个可执行exe程序</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/4-1.png" alt="病毒特征"></p>
+<p>将exe程序dump出来之后可以发现 __imp_URLDownloadToFileA、WinExec<br>远程下载程序并执行，就此初步目的分析结束</p>
+<p>lab1的练习结束，发现答案解析比我想象的要简单，需要加快速度，奥利给！！</p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏
+            <div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@master/img/custom/donate/aipay.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@master/img/custom/donate/we.jpg"></li>
+              </ul>
             </div>
           </div>
         </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
       </article>
-    </div>
-  </div>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+        
+          
+            <div class="post-nepre full next">
+          
+            <a href="/2020/01/29/博客搭建自学注意事项/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                博客搭建自学注意事项</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "GyC3NzMvd0hT9Yyd2hYIC0MN-gzGzoHsz",
+        appKey: "mgOpfzbkHYqU92CV4IDlAUHQ",
+        path: window.location.pathname,
+        placeholder: "你是我一生只会遇见一次的惊喜 ..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shijingtian.github.io" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/GhostSoul.ico" itemprop="image" alt="蝉3301" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shijingtian.github.io" itemprop="url" rel="author">蝉3301</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>一个好奇的人</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
 </div>
+
+
 
     </div>    
     <div class="ins-search">
