@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2020-02-14T08:32:10.810Z</updated>
+  <updated>2020-02-20T07:33:27.912Z</updated>
   <id>/</id>
   
   <author>
@@ -17,11 +17,47 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>恶意代码分析-lab-3-4-5</title>
+    <link href="/2020/02/15/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-lab3-4-5/"/>
+    <id>/2020/02/15/恶意代码分析-lab3-4-5/</id>
+    <published>2020-02-15T03:26:54.000Z</published>
+    <updated>2020-02-20T07:33:27.912Z</updated>
+    
+    <summary type="html">
+    
+      恶意代码分析
+    
+    </summary>
+    
+      <category term="技术" scheme="/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>PE——ELF文件格式</title>
+    <link href="/2020/02/14/PE-ELF%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/"/>
+    <id>/2020/02/14/PE-ELF文件结构/</id>
+    <published>2020-02-14T03:03:00.000Z</published>
+    <updated>2020-02-20T14:44:14.562Z</updated>
+    
+    <summary type="html">
+    
+      逆向
+    
+    </summary>
+    
+      <category term="技术" scheme="/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>恶意代码分析-lab1</title>
     <link href="/2020/02/13/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-lab1/"/>
     <id>/2020/02/13/恶意代码分析-lab1/</id>
     <published>2020-02-13T03:03:00.000Z</published>
-    <updated>2020-02-14T08:32:10.810Z</updated>
+    <updated>2020-02-20T14:44:03.348Z</updated>
     
     <summary type="html">
     
