@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">恶意代码分析-lab-3-4-5 | 蝉3301</title>
+  <title itemprop="name">linux学习 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -286,7 +286,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      恶意代码分析-lab-3-4-5</h1>
+      linux学习</h1>
       <p class="entry-census">
         <span>
           <a href="shijingtian.github.io">
@@ -298,7 +298,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2020-2-15<span class="bull">
+        2020-2-21<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -312,38 +312,86 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>这次把实验3-4-5写到一起，感觉这样更好看一些        []~(￣▽￣)~*</p>
-<p>##lab3-1<br><strong>分析</strong><br>首先，加壳，由于这一章是动态分析，所以不脱壳直接动态分析</p>
-<p>通过procmon可以得到一些库出去基础，额外有ntdll.dll、wow64.dll</p>
-<p>字符串中有如下图</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-1.png" alt="病毒特征"></p>
-<p>可能修改了注册表使其可以开机自动运行，并且运行了一个vmx32to64.exe的程序</p>
-<p>不过这个文件应该是挂了，我的win7系统上运行不起来，毕竟这本书是在xp的基础上讲得，不过我发现如果用ida可以直接判断出很多有用的信息</p>
-<p>一些知识：</p>
-<pre><code class="系统启动PE自动启动注册表位置">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+          <p>##常用指令</p>
+<p><strong>ls</strong></p>
+<pre><code>-a     显示所有文件包括隐藏文件
+-l    显示详细信息
+-d    查看目录属性
+-h    人性化显示文件大小
+-i    显示文件名和inode
+</code></pre><p>图片中有一个错误，分组后面还有一个文件大小<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/linux/cmd/1.png" alt="ls"></p>
+<p><strong>目录</strong></p>
+<pre><code>//cd
+cd ~    回家
+cd -    回退，去之前去过的一个目录
+cd /    进入根目录，比家更彻底
+cd ..    回上一个目录
 
-procmon筛选会出现的典型噪声（原理：随机数发生器的种子会有软件在注册表上不断更新）
-HKML\SOFTWARE\Microsoft\Cryptography\RNG\Seed
-</code></pre>
-<p>之后换了在xp机上实验，果然是版本问题，看来病毒太老也是不行 0-0</p>
-<p>procmon选出筛选条件</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-2.png" alt="病毒特征"></p>
-<p>得到相关数据</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-3.png" alt="病毒特征"></p>
-<p>这里可以得出上述中的vmx32to64.exe写进了system32的文件里，seed是噪声，第二项表明建立了一个开机启动项</p>
-<p>procex可以观察正在运行中的lab03-1.exe的一些信息</p>
-<p>导入的一些dll文件</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-4.png" alt="病毒特征"></p>
-<p><code>ws2_32.dll:    Windows Sockets应用程序接口， 用于支持Internet和网络应用程序。
-//一般就是允许恶意软件联网（还有wshtcpip.dll）</code><br>建立了一个互斥量WinVMX32（互斥量：同一时间保证只有一个恶意代码在运行）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-5.png" alt="病毒特征"></p>
-<p>第一个实例就是练习试用一下各个工具</p>
-<p>##3-2<br>直接一个dll文件，之前说过可以用rundll32.dll直接运行一下，刚开始踩坑了，应该先去查看他的输出表，之后再去根据输出表的函数输入对应的cmd命令</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-1.png" alt="病毒特征"></p>
-<p>cmd命令:        rundll32.exe Lab03-02.dll,installA</p>
-<p>看到<strong>ServcieMain</strong>说明恶意代码要安装一个服务<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-2.png" alt="病毒特征"></p>
-<p>查看import库</p>
-<p>CreateServiceA,RegSetValueExA等（<strong>ADVAPI32.dll</strong>）表明里面有服务操作,且有注册表值修改<br><strong>ws2_32.dll</strong>：联网，其中有关于http的相关函数说明使用了http</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-3.png" alt="病毒特征"></p>
+pwd        显示目录路径
+
+//mkdir    新建文件
+-p    可以多层建立
+
+//rmdir    删除空目录（必须是空目录）
+-p    删除子目录如果上一级目录变空则上一级删除
+//rm    （常用）
+-r    删除整个目录
+-f    force强制删除，不用确认
+-i    删除前逐一询问
+rm -rf /    删光电脑程序（linux从入门到跑路的关键代码）
+
+</code></pre><p><strong>文件处理</strong></p>
+<pre><code>//cp    同mv
+-a        相当于dpr
+-d        如果是链接文件，复制链接属性
+-f        覆盖已存在不给提示
+-i        覆盖给提示
+-p        额外把修改时间和访问权限复制到文件
+-r        目录文件的话，就全都复制
+-l        不复制文件，只生成链接
+
+//mv    mv [参数] [源文件] [目标文件]
+-i        询问覆盖
+-f        不询问覆盖
+
+//ln    同mv
+-b        删除覆盖以前的链接
+-d        允许超级用户制作目录的硬链接，一般用户建立文件的硬链接
+-f        不询问执行
+-i        询问执行
+-n        符号链接视为一般目录
+-s        软连接（符号链接）
+-v        显示处理过程
+</code></pre><p>linux文件组成</p>
+<p><strong>用户数据</strong>：用户所有的源数据<br><strong>元数据</strong>：包含inode的文件附加数据</p>
+<p>###软连接与硬链接</p>
+<p><strong>硬链接</strong>：一个inode号对应多个<strong>文件</strong>名，这些文件为硬链接，一个文件有多个别名</p>
+<p>特性：</p>
+<ul>
+<li>文件有相同的inode以及data block</li>
+<li>只能对已存在文件创建</li>
+<li>不能交叉文件系统进行硬链接创建</li>
+<li>不可创建目录文件</li>
+<li>删除单一不影响其他</li>
+</ul>
+<p><strong>软连接</strong>：<strong>用户数据块</strong>存放的内容是另一个文件的路径名指向（windos快捷方式）</p>
+<p>特性：</p>
+<ul>
+<li>有自己的文件权限与属性</li>
+<li>可以对不存在文件创建</li>
+<li>可以交叉系统创建</li>
+<li>可创建目录文件</li>
+<li>创建，i_nlink不增加</li>
+<li>删除不影响被指向文件</li>
+</ul>
+<p>locate：文件搜索命令        locate [参数] 文件名</p>
+<p>-d    指定搜索数据库（默认/var/lib/mlocate.db）<br>（如果数据库没更新，就搜不到新建，更新命令updatedb，较慢）</p>
+<p>whereis：搜索命令</p>
+<p>-b    搜索二进制文件<br>-m    搜索man手册<br>-s    只搜索源代码<br>-f    终止&lt;目录&gt;参数列表<br>-u    搜索不常见记录<br>-l    输出有效查找路径</p>
+<p>which：区别于whereis：which可看到文件别名（Ubuntu好像没区别。。）</p>
+<p>ps：外部命令有使用手册例如ls\apt（man），内部命令没有例如cd</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/linux/cmd/whereis-1.png" alt="whereis"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/linux/cmd/whereis-2.png" alt="whereis"></p>
+<p>find    find [搜索路径] [选型] [文件名]</p>
 
         </div>
         <!-- .entry-content -->
@@ -372,28 +420,11 @@ HKML\SOFTWARE\Microsoft\Cryptography\RNG\Seed
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2020/02/21/linux学习/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                linux学习</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2020/02/14/PE-ELF文件结构/" rel="next">
+            <a href="/2020/02/15/恶意代码分析-lab3-4-5/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -401,7 +432,7 @@ HKML\SOFTWARE\Microsoft\Cryptography\RNG\Seed
               Next Post</span>
               <div class="info">
                 <h3>
-                PE——ELF文件格式</h3>
+                恶意代码分析-lab-3-4-5</h3>
                 <hr>
               </div>
             </a>
