@@ -313,8 +313,7 @@
         
         <div class="entry-content">
           <p>之前老师给了任务，同时自己也学习了很多，所以在这里写一下关于ELF和PE的文件格式的一些学习</p>
-<p>##ELF文件格式</p>
-<p>先写出readelf和hexdump的一些用法</p>
+<h2 id="ELF文件格式"><a href="#ELF文件格式" class="headerlink" title="ELF文件格式"></a>ELF文件格式</h2><p>先写出readelf和hexdump的一些用法</p>
 <pre><code>readelf：
 -a            全部展现
 -h            ELF文件头
@@ -333,8 +332,7 @@ hexdump:
 <p><strong>ELF头部</strong>(ELF_Header): 每个ELF文件都必须存在一个ELF_Header,这里存放了很多重要的信息用来描述整个文件的组织,如: 版本信息,入口信息,偏移信息等。程序执行也必须依靠其提供的信息。</p>
 <p><strong>程序头部表</strong>(Program_Header_Table): 可选的一个表，用于告诉系统如何在内存中创建映像,在图中也可以看出来,有程序头部表才有段,有段就必须有程序头部表。其中存放各个段的基本信息(包括地址指针)。</p>
 <p><strong>节区头部表</strong>(Section_Header_Table): 类似与Program_Header_Table,但与其相对应的是节区(Section)。</p>
-<p>####ELF 头部：</p>
-<p>设置一个elf文件常用的数据格式（此为32位）</p>
+<h4 id="ELF-头部："><a href="#ELF-头部：" class="headerlink" title="ELF 头部："></a>ELF 头部：</h4><p>设置一个elf文件常用的数据格式（此为32位）</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-1-1.png" alt="病毒特征"></p>
 <pre><code>
 //ELF Header结构体
@@ -363,8 +361,7 @@ typedef struct {
 <p>hex表</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-4-1.png" alt="病毒特征"></p>
 <p>其中Relocatable File（.o文件）不需要执行，因此e_entry字段为0，且没有Program Header Table等执行视图</p>
-<p>####程序头部表：</p>
-<pre><code>
+<h4 id="程序头部表："><a href="#程序头部表：" class="headerlink" title="程序头部表："></a>程序头部表：</h4><pre><code>
 //每个段的结构
 typedef struct{
 
@@ -398,8 +395,7 @@ typedef struct{
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-6.png" alt="病毒特征"></p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-6-1.png" alt="病毒特征"></p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-6-2.png" alt="病毒特征"></p>
-<p>####节区头部表</p>
-<pre><code>//每个节区的结构
+<h4 id="节区头部表"><a href="#节区头部表" class="headerlink" title="节区头部表"></a>节区头部表</h4><pre><code>//每个节区的结构
 
 typedef struct{
 
@@ -443,14 +439,12 @@ typedef struct{
 <p>这里给重定位留着位置，现在总是半懂不懂的，先留着等过以后找时间补充</p>
 <p>其上内容借鉴于各大佬的博客，以下附上链接地址</p>
 <p><a href="https://blog.csdn.net/u011298001/article/details/84862565" target="_blank" rel="noopener">https://blog.csdn.net/u011298001/article/details/84862565</a><br><a href="http://https://blog.csdn.net/ljy1988123/article/details/50404642" target="_blank" rel="noopener">https://blog.csdn.net/ljy1988123/article/details/50404642</a><br><a href="https://www.52pojie.cn/thread-591986-1-1.html" target="_blank" rel="noopener">https://www.52pojie.cn/thread-591986-1-1.html</a></p>
-<p>##PE文件格式</p>
-<p>个人感觉PE文件结构看上去比ELF要友好那么一点点（可能是因为做windows恶意代码分析的缘故吧0 -0）</p>
+<h2 id="PE文件格式"><a href="#PE文件格式" class="headerlink" title="PE文件格式"></a>PE文件格式</h2><p>个人感觉PE文件结构看上去比ELF要友好那么一点点（可能是因为做windows恶意代码分析的缘故吧0 -0）</p>
 <p>废话不多说，先上一个PE文件结构的图</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-1.png" alt="pe文件结构图"></p>
 <p>此图为逆向工程核心原理上的结构图左边是磁盘上的结构右边是运行时映射到内存上的结构</p>
 <p>首先还是从“头”开始</p>
-<p>###PE文件头</p>
-<p><strong>dos头（含dos存根）</strong></p>
+<h3 id="PE文件头"><a href="#PE文件头" class="headerlink" title="PE文件头"></a>PE文件头</h3><p><strong>dos头（含dos存根）</strong></p>
 
         </div>
         <!-- .entry-content -->

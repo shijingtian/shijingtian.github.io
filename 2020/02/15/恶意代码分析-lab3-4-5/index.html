@@ -313,7 +313,7 @@
         
         <div class="entry-content">
           <p>这次把实验3-4-5写到一起，感觉这样更好看一些        []~(￣▽￣)~*</p>
-<p>##lab3-1<br><strong>分析</strong><br>首先，加壳，由于这一章是动态分析，所以不脱壳直接动态分析</p>
+<h2 id="lab3-1"><a href="#lab3-1" class="headerlink" title="lab3-1"></a>lab3-1</h2><p><strong>分析</strong><br>首先，加壳，由于这一章是动态分析，所以不脱壳直接动态分析</p>
 <p>通过procmon可以得到一些库出去基础，额外有ntdll.dll、wow64.dll</p>
 <p>字符串中有如下图</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-1.png" alt="病毒特征"></p>
@@ -337,7 +337,7 @@ HKML\SOFTWARE\Microsoft\Cryptography\RNG\Seed
 <p><code>ws2_32.dll:    Windows Sockets应用程序接口， 用于支持Internet和网络应用程序。
 //一般就是允许恶意软件联网（还有wshtcpip.dll）</code><br>建立了一个互斥量WinVMX32（互斥量：同一时间保证只有一个恶意代码在运行）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-5.png" alt="病毒特征"></p>
 <p>第一个实例就是练习试用一下各个工具</p>
-<p>##3-2<br>直接一个dll文件，之前说过可以用rundll32.dll直接运行一下，刚开始踩坑了，应该先去查看他的输出表，之后再去根据输出表的函数输入对应的cmd命令</p>
+<h2 id="3-2"><a href="#3-2" class="headerlink" title="3-2"></a>3-2</h2><p>直接一个dll文件，之前说过可以用rundll32.dll直接运行一下，刚开始踩坑了，应该先去查看他的输出表，之后再去根据输出表的函数输入对应的cmd命令</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-1.png" alt="病毒特征"></p>
 <p>cmd命令:        rundll32.exe Lab03-02.dll,installA</p>
 <p>看到<strong>ServcieMain</strong>说明恶意代码要安装一个服务<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-2.png" alt="病毒特征"></p>
