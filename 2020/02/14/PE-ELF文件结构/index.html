@@ -364,23 +364,14 @@ typedef struct {
 <h4 id="程序头部表："><a href="#程序头部表：" class="headerlink" title="程序头部表："></a>程序头部表：</h4><pre><code>
 //每个段的结构
 typedef struct{
-
     Elf32_Word p_type;        下文有介绍
-
     Elf32_Off p_offset;        段相对于文件的索引地址
-
     Elf32_Addr p_vaddr;        段在内存中的虚拟地址
-
     Elf32_Addr p_paddr;        段的物理地址
-
     Elf32_Word p_filesz;    段在文件中的size
-
     Elf32_Word p_memsz;        段在内存中的size
-
     Elf32_Word p_flage;        段相关标志(read、write、exec)
-
     Elf32_Word p_align;        字节对齐        p_vaddr 和 p_offset 对 p_align 取模后应该等于0。
-
 } Elf32_phdr;
 
 
@@ -398,27 +389,16 @@ typedef struct{
 <h4 id="节区头部表"><a href="#节区头部表" class="headerlink" title="节区头部表"></a>节区头部表</h4><pre><code>//每个节区的结构
 
 typedef struct{
-
     Elf32_Word sh_name;            节区名称
-
     Elf32_Word sh_type;            节区格式
-
     Elf32_Word sh_flags;        节区相关标志(read、write、exec)
-
     Elf32_Addr sh_addr;            地址
-
     Elf32_Off sh_offset;        偏移
-
     Elf32_Word sh_size;            大小
-
     Elf32_Word sh_link;            给出此节区需要用到的索引成员链接（比如.dynsym---&gt;.dynstr）
-
     Elf32_Word sh_info;            此成员给出的一些附加信息（与type有关）
-
     Elf32_Word sh_addralign;    字节对齐
-
     Elf32_Word sh_entsize;        节区中每条ent的size（若节区里面又分成了多条ent）
-
 }Elf32_Shdr;
 
 </code></pre><p><strong>sh_type</strong></p>
@@ -444,7 +424,95 @@ typedef struct{
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-1.png" alt="pe文件结构图"></p>
 <p>此图为逆向工程核心原理上的结构图左边是磁盘上的结构右边是运行时映射到内存上的结构</p>
 <p>首先还是从“头”开始</p>
-<h3 id="PE文件头"><a href="#PE文件头" class="headerlink" title="PE文件头"></a>PE文件头</h3><p><strong>dos头（含dos存根）</strong></p>
+<h3 id="PE文件头"><a href="#PE文件头" class="headerlink" title="PE文件头"></a>PE文件头</h3><h4 id="dos头（含dos存根）"><a href="#dos头（含dos存根）" class="headerlink" title="dos头（含dos存根）"></a>dos头（含dos存根）</h4><p>比较简单，这里就不列出全部了，我们只需要关注两个区域，图片在下面，在下一个是在PE_stu里面展示的，大致了解一下情况</p>
+<p><strong>e_magic：</strong>常数，文本值为MZ<br><strong>e_lfanew：</strong>NT头的偏移又或者说是dos头的大小</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-2.png" alt="dos头"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-2-1.png" alt="dos头"></p>
+<p>这里他的dos存根就是展示一下DOS操作系统不能运行，然后退出这个程序，算是一个小小的彩蛋吧，哈哈</p>
+<h4 id="NT头"><a href="#NT头" class="headerlink" title="NT头"></a>NT头</h4><p>这个头就比较重要了，他由两部分组成，一个是文件头一个是可选头，NT头是头里面最大的头</p>
+<pre><code>typedef struct _IMAGE_NT_HEADERS {
+    DWORD Signature;                签名PE
+    IMAGE_FILE_HEADER FileHeader;                文件头
+    IMAGE_OPTIONAL_HEADER32 OptionalHeader;        可选头
+} IMAGE_NT_HEADERS32, *PIMAGE_NT_HEADERS32;
+
+</code></pre><p><strong>文件头</strong></p>
+<pre><code>typedef struct _IMAGE_FILE_HEADER {
+    WORD    Machine;                文件运行的平台，比如x86，x86_64
+    WORD    NumberOfSections;        节区数目
+    DWORD   TimeDateStamp;            时间戳，换算可以参考病毒分析的lab1
+    DWORD   PointerToSymbolTable;    
+    DWORD   NumberOfSymbols;
+    WORD    SizeOfOptionalHeader;    可选头大小
+    WORD    Characteristics;        文件的属性
+} IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
+</code></pre><p><em>Machine</em></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-3.png" alt="NT-文件头-machine码对应"></p>
+<p><em>Characteristics</em></p>
+<p>这里我们只需要记住一些重要的就行比如0x0002（可执行）、0x0100（32位）、0x1000（系统文件）、0x2000（dll文件）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-3-1.png" alt="NT-文件头-Characteristics码对应"></p>
+<p>图片来源于<a href="https://blog.csdn.net/adam001521/article/details/84658708" target="_blank" rel="noopener">adam001521博客</a></p>
+<p><strong>可选头</strong></p>
+<pre><code>typedef struct _IMAGE_OPTIONAL_HEADER {
+    WORD    Magic;                            表明可选头类型（0x10b 32PE、0x20b 64PE）
+    BYTE    MajorLinkerVersion;                链接器的版本号
+    BYTE    MinorLinkerVersion;
+    DWORD   SizeOfCode;                        代码段的总长度
+    DWORD   SizeOfInitializedData;            初始化数据长度
+    DWORD   SizeOfUninitializedData;        未初始化数据长度
+    DWORD   AddressOfEntryPoint;            程序入口RVA exe的main、dll的DllMain、驱动的DriverEntry
+    DWORD   BaseOfCode;                        代码段起始的RVA
+    DWORD   BaseOfData;                        数据段起始的RVA
+    DWORD   ImageBase;                        映像（加载到内存上的）基地址
+    DWORD   SectionAlignment;                内存中节区地址起始最小值，比如0x1000则每个节的起始地址低12位都是0
+    DWORD   FileAlignment;                    文件中对齐值，同上文
+    WORD    MajorOperatingSystemVersion;
+    WORD    MinorOperatingSystemVersion;
+    WORD    MajorImageVersion;
+    WORD    MinorImageVersion;
+    WORD    MajorSubsystemVersion;
+    WORD    MinorSubsystemVersion;
+    DWORD   Win32VersionValue;                保留必须为0
+    DWORD   SizeOfImage;                    映射到内存的映像的大小
+    DWORD   SizeOfHeaders;                    头的大小，以FileAlignment对齐的
+    DWORD   CheckSum;
+    WORD    Subsystem;                        区分是系统文件还是可执行文件
+    WORD    DllCharacteristics;
+    DWORD   SizeOfStackReserve;
+    DWORD   SizeOfStackCommit;
+    DWORD   SizeOfHeapReserve;
+    DWORD   SizeOfHeapCommit;
+    DWORD   LoaderFlags;
+    DWORD   NumberOfRvaAndSizes;            数据目录数目，下面的数据目录是个数组，里面存着各种重要的数据的RVA和Size
+    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+} IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
+</code></pre><p><em>Subsystem</em></p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>含 义</th>
+<th>备 注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Driver文件</td>
+<td>系统驱动（如：ntfs.sys）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>GUI文件</td>
+<td>窗口应用程序（如：notepad.exe）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>CUI文件</td>
+<td>cmd程序（如：cmd.exe）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>DataDirectory</strong>（结构就不放了，就一个RVA一个size）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-4.png" alt="NT-文件头-machine码对应"></p>
 
         </div>
         <!-- .entry-content -->
