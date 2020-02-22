@@ -449,7 +449,7 @@ typedef struct{
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-3.png" alt="NT-文件头-machine码对应"></p>
 <p><em>Characteristics</em></p>
 <p>这里我们只需要记住一些重要的就行比如0x0002（可执行）、0x0100（32位）、0x1000（系统文件）、0x2000（dll文件）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-3-1.png" alt="NT-文件头-Characteristics码对应"></p>
-<p>图片来源于<a href="https://blog.csdn.net/adam001521/article/details/84658708" target="_blank" rel="noopener">adam001521博客</a></p>
+<p>图片来源于<a href="https://blog.csdn.net/adam001521/article/details/84658708" target="_blank" rel="noopener">adam001521的博客</a></p>
 <p><strong>可选头</strong></p>
 <pre><code>typedef struct _IMAGE_OPTIONAL_HEADER {
     WORD    Magic;                            表明可选头类型（0x10b 32PE、0x20b 64PE）
@@ -498,21 +498,47 @@ typedef struct{
 <td>1</td>
 <td>Driver文件</td>
 <td>系统驱动（如：ntfs.sys）</td>
+<td></td>
 </tr>
 <tr>
 <td>2</td>
 <td>GUI文件</td>
 <td>窗口应用程序（如：notepad.exe）</td>
+<td></td>
 </tr>
 <tr>
 <td>3</td>
 <td>CUI文件</td>
 <td>cmd程序（如：cmd.exe）</td>
+<td></td>
 </tr>
 </tbody>
 </table>
 <p><strong>DataDirectory</strong>（结构就不放了，就一个RVA一个size）</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-4.png" alt="NT-文件头-machine码对应"></p>
+<p>重要的是import[1]、export[0]、resource[2]、TLS[9]<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-4.png" alt="NT-可选头-DataDirectory"></p>
+<p>最后说明一下其十六进制数据<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-5.png" alt="NT头十六进制数据"></p>
+<h4 id="节区头"><a href="#节区头" class="headerlink" title="节区头"></a>节区头</h4><pre><code>typedef struct _IMAGE_SECTION_HEADER 
+{
+    BYTE Name[IMAGE_SIZEOF_SHORT_NAME];     节表名称,如“.text” 
+    union
+    {
+        DWORD PhysicalAddress;                 磁盘中的地址（物理地址）
+        DWORD VirtualSize;                     虚拟大小（节区映像大小）
+    }Misc;
+    DWORD VirtualAddress;             虚拟地址
+    DWORD SizeOfRawData;             磁盘中节区大小
+    DWORD PointerToRawData;         磁盘中节区偏移
+    DWORD PointerToRelocations;     在OBJ文件中使用，重定位的偏移
+    DWORD PointerToLinenumbers;     行号表的偏移（供调试使用地）
+    WORD NumberOfRelocations;         在OBJ文件中使用，重定位项数目
+    WORD NumberOfLinenumbers;         行号表中行号的数目
+    DWORD Characteristics;             节属性如可读，可写，可执行等
+} IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
+</code></pre><p><em>Characteristics</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-6.png" alt="节区属性表"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-6-1.png" alt="节区属性表"></p>
+<p>图片来源于<a href="https://www.cnblogs.com/qintangtao/archive/2013/01/11/2857180.html" target="_blank" rel="noopener">qintangtao</a>的博客园</p>
+<p>十六进制图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-7.png" alt="十六进制图"></p>
+<p>import导入<br>export导出<br>重定位<br>延迟重定位<br>loading。。。。。。</p>
+<p>感谢<br><a href="https://blog.csdn.net/adam001521/article/details/84658708" target="_blank" rel="noopener">adam001521师傅</a>提供的素材<br><a href="https://www.cnblogs.com/qintangtao/archive/2013/01/11/2857180.html" target="_blank" rel="noopener">qintangtao师傅</a>提供的图片</p>
 
         </div>
         <!-- .entry-content -->
