@@ -312,7 +312,7 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>在逆向学习里面遇到的一些比较方便的算法啥的，就总结在这里，虽然杂但是应该会有用</p>
+          <p>在逆向学习里面遇到的一些比较方便的算法啥的，就总结在这里，虽然杂但是应该会有用&lt;(<em>￣▽￣</em>)/</p>
 <h1 id="IDA-IDC"><a href="#IDA-IDC" class="headerlink" title="IDA-IDC"></a>IDA-IDC</h1><p><strong>定义：</strong><br>auto i,j,k;<br>extern outsideGlobal;        //引入全局变量声明</p>
 <h2 id="常用函数"><a href="#常用函数" class="headerlink" title="常用函数"></a>常用函数</h2><p>void PatchByte(long addr , long val) 设置虚拟地址addr处的一个字节值，PatchByte可更换为<br>PatchWord，PatchDword设置虚拟地址addr处的2字节和4字节值。</p>
 <p><strong>long Byte</strong>（long addr） 从虚拟地址addr读取一个字节值，Byte可更换为Word，Dword读取2字节和4字节值。</p>
@@ -338,6 +338,20 @@ for(i=0x40213b;i&gt;=0x402124;i--)
 Message(&quot;\n&quot;)
 </code></pre><p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/idc-1.png" alt="idc功能实现"></p>
 <p>本内容大部分摘抄于<a href="https://blog.csdn.net/charlesgodx/article/details/84866365" target="_blank" rel="noopener">Thunder_J</a>的csdn</p>
+<h1 id="C语言函数"><a href="#C语言函数" class="headerlink" title="C语言函数"></a>C语言函数</h1><h2 id="atoi-amp-amp-itoa"><a href="#atoi-amp-amp-itoa" class="headerlink" title="atoi &amp;&amp; _itoa"></a>atoi &amp;&amp; _itoa</h2><p><strong>atoi</strong></p>
+<p>参数：char</p>
+<p>作用：字符串（字符串为char类型）转int型</p>
+<pre><code>a=&quot;123&quot;;
+b=atoi(a);
+printf(b);
+
+输出：123（且int b=123）
+</code></pre><p><strong>atoi有一个特性，遇到非数字就会截止转换，但前面的会转换</strong></p>
+<p><strong>_itoa(value,string,radix)</strong></p>
+<p>参数<br>value：欲转换的数据。<br>string：目标字符串的地址。<br>radix：转换后的进制数，可以是10进制、16进制等，范围必须在 2-36。</p>
+<p>作用：int型转字符串</p>
+<p>做了一道功放世界新放的逆向，名称：Mysterious<br>难度不大，想试着直接静态调试，发现卡在了一个函数身上，思路也是卡死了，应该想到这是一道溢出的<br>ida图片分析如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/c-atoi-1.png" alt="Mysterious"><br>思路想通了很简单，溢出string给到v12、v13、v14，然后string给v10,就是卡在了atoi遇到非数字就截止但前面都会转换的功能上，知道之后，输入122xyz，122给了v10，剩下xyz分别给了v12、v13、v14，得到结果<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/c-atoi-2.png" alt="Mysterious"></p>
+<p>本内容中的参数摘抄于<a href="https://blog.csdn.net/lanzhihui_10086/article/details/39960027" target="_blank" rel="noopener">lanzhihui_</a>的csdn</p>
 
         </div>
         <!-- .entry-content -->
@@ -369,7 +383,7 @@ Message(&quot;\n&quot;)
           
             <div class="post-nepre half previous">
           
-            <a href="/2020/01/29/博客搭建自学注意事项/" rel="prev">
+            <a href="/2019/12/16/日常逆向ctf练习/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -377,7 +391,7 @@ Message(&quot;\n&quot;)
               Previous Post</span>
               <div class="info">
                 <h3>
-                博客搭建自学注意事项</h3>
+                逆向ctf练习</h3>
                 <hr>
               </div>
             </a>
@@ -387,7 +401,7 @@ Message(&quot;\n&quot;)
           
             <div class="post-nepre half next">
           
-            <a href="/2019/12/16/日常逆向ctf练习/" rel="next">
+            <a href="/2018/12/12/Hexo-Theme-Sakura/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -395,7 +409,7 @@ Message(&quot;\n&quot;)
               Next Post</span>
               <div class="info">
                 <h3>
-                逆向ctf练习</h3>
+                Hexo-Theme-Sakura</h3>
                 <hr>
               </div>
             </a>
