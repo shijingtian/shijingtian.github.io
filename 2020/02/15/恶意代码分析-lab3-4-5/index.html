@@ -336,14 +336,17 @@ HKML\SOFTWARE\Microsoft\Cryptography\RNG\Seed
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-4.png" alt="病毒特征"></p>
 <p><code>ws2_32.dll:    Windows Sockets应用程序接口， 用于支持Internet和网络应用程序。
 //一般就是允许恶意软件联网（还有wshtcpip.dll）</code><br>建立了一个互斥量WinVMX32（互斥量：同一时间保证只有一个恶意代码在运行）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-5.png" alt="病毒特征"></p>
+<p>同时在注册表设置了开机自启动<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/1-6.png" alt="病毒特征"></p>
 <p>第一个实例就是练习试用一下各个工具</p>
-<h2 id="3-2"><a href="#3-2" class="headerlink" title="3-2"></a>3-2</h2><p>直接一个dll文件，之前说过可以用rundll32.dll直接运行一下，刚开始踩坑了，应该先去查看他的输出表，之后再去根据输出表的函数输入对应的cmd命令</p>
+<h2 id="3-2"><a href="#3-2" class="headerlink" title="3-2"></a>3-2</h2><p>样本名称：Lab03-02.dll<br>样本大小：24065bytes<br>样本类型：DLL 32bit Portable executable for 80386 (PE)<br>MD5：84882C9D43E23D63B82004FAE74EBB61</p>
+<p>分析环境：Windows7 64虚拟机<br>调试工具：PE_Stu、IDA</p>
+<p>直接一个dll文件，之前说过可以用rundll32.dll直接运行一下，刚开始踩坑了，应该先去查看他的输出表，之后再去根据输出表的函数输入对应的cmd命令</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-1.png" alt="病毒特征"></p>
 <p>cmd命令:        rundll32.exe Lab03-02.dll,installA</p>
 <p>看到<strong>ServcieMain</strong>说明恶意代码要安装一个服务<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-2.png" alt="病毒特征"></p>
 <p>查看import库</p>
-<p>CreateServiceA,RegSetValueExA等（<strong>ADVAPI32.dll</strong>）表明里面有服务操作,且有注册表值修改<br><strong>ws2_32.dll</strong>：联网，其中有关于http的相关函数说明使用了http</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-3.png" alt="病毒特征"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/link/" alt="病毒特征"></p>
+<p>CreateServiceA,RegSetValueExA等（<strong>ADVAPI32.dll</strong>）表明里面有服务操作,且有注册表值修改<br><strong>WS2_32.dll</strong>：联网，其中有关于http的相关函数说明使用了http</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-2-1.png" alt="病毒特征"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-2-2.png" alt="病毒特征"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab3/2-2-3.png" alt="病毒特征"></p>
 
         </div>
         <!-- .entry-content -->

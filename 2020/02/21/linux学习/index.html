@@ -312,15 +312,13 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h2 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h2><p><strong>ls</strong></p>
-<pre><code>-a     显示所有文件包括隐藏文件
+          <h2 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h2><h3 id="ls"><a href="#ls" class="headerlink" title="ls"></a>ls</h3><pre><code>-a     显示所有文件包括隐藏文件
 -l    显示详细信息
 -d    查看目录属性
 -h    人性化显示文件大小
 -i    显示文件名和inode
 </code></pre><p>图片中有一个错误，分组后面还有一个文件大小<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/linux/cmd/1.png" alt="ls"></p>
-<p><strong>目录</strong></p>
-<pre><code>//cd
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><pre><code>//cd
 cd ~    回家
 cd -    回退，去之前去过的一个目录
 cd /    进入根目录，比家更彻底
@@ -339,8 +337,7 @@ pwd        显示目录路径
 -i    删除前逐一询问
 rm -rf /    删光电脑程序（linux从入门到跑路的关键代码）
 
-</code></pre><p><strong>文件处理</strong></p>
-<pre><code>//cp    同mv
+</code></pre><h3 id="文件处理"><a href="#文件处理" class="headerlink" title="文件处理"></a>文件处理</h3><pre><code>//cp    同mv
 -a        相当于dpr
 -d        如果是链接文件，复制链接属性
 -f        覆盖已存在不给提示
@@ -382,15 +379,26 @@ rm -rf /    删光电脑程序（linux从入门到跑路的关键代码）
 <li>创建，i_nlink不增加</li>
 <li>删除不影响被指向文件</li>
 </ul>
-<p>locate：文件搜索命令        locate [参数] 文件名</p>
+<h3 id="搜索"><a href="#搜索" class="headerlink" title="搜索"></a>搜索</h3><p><strong>locate</strong>：文件搜索命令        locate [参数] 文件名</p>
 <p>-d    指定搜索数据库（默认/var/lib/mlocate.db）<br>（如果数据库没更新，就搜不到新建，更新命令updatedb，较慢）</p>
-<p>whereis：搜索命令</p>
+<p><strong>whereis</strong>：搜索命令</p>
 <p>-b    搜索二进制文件<br>-m    搜索man手册<br>-s    只搜索源代码<br>-f    终止&lt;目录&gt;参数列表<br>-u    搜索不常见记录<br>-l    输出有效查找路径</p>
-<p>which：区别于whereis：which可看到文件别名（Ubuntu好像没区别。。）</p>
+<p><strong>which</strong>：区别于whereis：which可看到文件别名（Ubuntu好像没区别。。）</p>
 <p>ps：外部命令有使用手册例如ls\apt（man），内部命令没有例如cd</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/linux/cmd/whereis-1.png" alt="whereis"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/linux/cmd/whereis-2.png" alt="whereis"></p>
-<p>find    find [搜索路径] [选型] [文件名]</p>
-
+<p><strong>find</strong>    find [搜索路径] [选型] [文件名]（find / -name install.org）</p>
+<p>通配符模糊搜索（*匹配任意数量字符、？匹配一个字符、[]匹配一个中数组内的字符）</p>
+<p><em>[选型]</em><br>-iname：忽略大小写<br>-user：按所有者<br>-root：按无所有者<br>-mtime：几天内修改过的文件、-atime、-ctime<br>-size：文件大小（-size +20k -a -size -50k）<br>-inum：索引号<br>-a -o：逻辑与逻辑或<br>-exec：以;结束，防止歧义一般用”\;”</p>
+<p><strong>grep</strong>文件中匹配符合字符串 grep [选项] 字符串 文件名</p>
+<p><em>[选项]</em><br>-i：忽略大小写<br>-v：排除指定字符串<br>-l：列出包含匹配字符串的<strong>文件</strong></p>
+<p>帮助命令 –help（或 man 例：man ls）</p>
+<h3 id="压缩解压缩"><a href="#压缩解压缩" class="headerlink" title="压缩解压缩"></a>压缩解压缩</h3><p><strong>.gz</strong>    gzip 源文件<br>-c：保留源文件<br>-r：目录包含文件都压缩<br>-d：解压缩</p>
+<p><strong>.bz2</strong> bzip2 源文件<br>-k：保留原文件<br>-d：解压缩</p>
+<p><strong>.tar</strong> tar [选项]<br>tar -cvf xorr.tar xorr</p>
+<h3 id="关机与重启"><a href="#关机与重启" class="headerlink" title="关机与重启"></a>关机与重启</h3><p><strong>shutdown</strong> [选项] 时间<br>-c 取消关机操作<br>-h 关机后停机<br>-r 重启（设置了时间在控制台就被挂起了）</p>
+<p>halt、poweroff、init 0</p>
+<p>cat /etc/inittab    系统启动的默认级别<br>runlevel            显示现在系统的级别<br>logout                退出当前用户</p>
+<h1 id="这里有点乱，到时候稍微在整理一下"><a href="#这里有点乱，到时候稍微在整理一下" class="headerlink" title="这里有点乱，到时候稍微在整理一下"></a>这里有点乱，到时候稍微在整理一下</h1>
         </div>
         <!-- .entry-content -->
         <div class="single-reward">
