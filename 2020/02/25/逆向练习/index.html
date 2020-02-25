@@ -314,10 +314,10 @@
         <div class="entry-content">
           <h1 id="攻防世界————asong"><a href="#攻防世界————asong" class="headerlink" title="攻防世界————asong"></a>攻防世界————asong</h1><p>今天做了几道攻防世界的逆向题，有一道题比较麻烦，虽然不难，但耗费了不少时间，其中有很多时间是可以节省的，所以这次就把这道题记录下来。</p>
 <p>本来打算直接静调出结果，但中间卡在了一个点上，不得不动调，虽然最后发现，动调并没有给多大的帮助0- 0</p>
-<p>放到ida，我已经分好了类，首先输入，然后判断一下开头结尾，之后建立一个字典，最后对输入进行算数处理，逻辑很清晰，没有任何阻碍<br><a href="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-1.png" target="_blank" rel="noopener">ida调试图</a></p>
-<p>建立字典里面有个函数说一下，算一个小坑吧，没在这里绊很长时间。<br>首先，他是从that_girl文件里面根据单词出现的频率，每个单词对应相应的出现次数，然后建立了表格，当时我在这里犹豫了一会儿，在这个我标记的case函数里面，他将单词asc改成了相应下标值，我以为需要考虑，可到后来才发现，其实完全不需要考虑他们的位置，只需要记住对应的词频率就ok这里卡了一会的<br><em>建立词频率的函数图</em><br><a href="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-2-2.png" target="_blank" rel="noopener">词频函数图</a></p>
-<p>他在建立函数时，大小写全都放到一个词频数组里面去的，也就是说不区分大小写<br><a href="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-2-1.png" target="_blank" rel="noopener">不区分大小写</a></p>
-<p>然后运算处理也很简单，首先将我们的各个输入的字符，转化成相对应的频率，再位置变换，再移位交换，最后得到结果<br><a href="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-3.png" target="_blank" rel="noopener">运算函数</a></p>
+<p>放到ida，我已经分好了类，首先输入，然后判断一下开头结尾，之后建立一个字典，最后对输入进行算数处理，逻辑很清晰，没有任何阻碍<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-1.png" alt="ida调试图"></p>
+<p>建立字典里面有个函数说一下，算一个小坑吧，没在这里绊很长时间。<br>首先，他是从that_girl文件里面根据单词出现的频率，每个单词对应相应的出现次数，然后建立了表格，当时我在这里犹豫了一会儿，在这个我标记的case函数里面，他将单词asc改成了相应下标值，我以为需要考虑，可到后来才发现，其实完全不需要考虑他们的位置，只需要记住对应的词频率就ok这里卡了一会的<br><em>建立词频率的函数图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-2-2.png" alt="词频函数图"></p>
+<p>他在建立函数时，大小写全都放到一个词频数组里面去的，也就是说不区分大小写<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-2-1.png" alt="不区分大小写"></p>
+<p>然后运算处理也很简单，首先将我们的各个输入的字符，转化成相对应的频率，再位置变换，再移位交换，最后得到结果<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-3.png" alt="运算函数"></p>
 <p>python代码如下</p>
 <pre><code>flag=&quot;QCTF{&quot;                #建立头
 
@@ -374,7 +374,7 @@ for i in range(len(arr1)):
     flag+=dic[arr0.index(arr1[i])]        #根据词频去查之前的字典就得到相应的flag
 flag+=&quot;}&quot;
 print(flag)
-</code></pre><p>最后祭奠一下卡了半天出错的地方的地方，这里他因为第二个数是0，所以出现了align8（意思是8个0）这个不合理的玩意<em>(:з」∠)__(:з」∠)</em>，没有看到，所以没找到数组里的0，还以为逻辑有错，<em>(:з」∠)</em>卡时候的心态爆炸，发现之后更心态爆炸<br><em>align8图</em><br><a href="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4.png" target="_blank" rel="noopener">艹</a><br><em>d键之后的图</em><br><a href="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4-1.png" target="_blank" rel="noopener">艹</a></p>
+</code></pre><p>最后祭奠一下卡了半天出错的地方的地方，这里他因为第二个数是0，所以出现了align8（意思是8个0）这个不合理的玩意<em>(:з」∠)__(:з」∠)</em>，没有看到，所以没找到数组里的0，还以为逻辑有错，<em>(:з」∠)</em>卡时候的心态爆炸，发现之后更心态爆炸<br><em>align8图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4.png" alt="艹"><br><em>d键之后的图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4-1.png" alt="艹"></p>
 <p>可见有时候看到数据连在一起，先d一d是一个好习惯，<em>(:з」∠)</em>（一种植物）</p>
 
         </div>
