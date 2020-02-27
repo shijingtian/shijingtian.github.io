@@ -376,6 +376,47 @@ flag+=&quot;}&quot;
 print(flag)
 </code></pre><p>最后祭奠一下卡了半天出错的地方的地方，这里他因为第二个数是0，所以出现了align8（意思是8个0）这个不合理的玩意<em>(:з」∠)__(:з」∠)</em>，没有看到，所以没找到数组里的0，还以为逻辑有错，<em>(:з」∠)</em>卡时候的心态爆炸，发现之后更心态爆炸<br><em>align8图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4.png" alt="艹"><br><em>d键之后的图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4-1.png" alt="艹"></p>
 <p>可见有时候看到数据连在一起，先d一d是一个好习惯，<em>(:з」∠)</em>（一种植物）</p>
+<h1 id="功放世界————testre（西湖论剑预选赛）"><a href="#功放世界————testre（西湖论剑预选赛）" class="headerlink" title="功放世界————testre（西湖论剑预选赛）"></a>功放世界————testre（西湖论剑预选赛）</h1><p>首先这道题是base58，俺看出来了它是一个进制转换的函数，但是原理搞了半天也没搞懂，还是算法基础太差，唉，不过虽然思考的时间很久，但最后自己有了一个很明确很好的理解思路，我感觉这也算是有收获，也算是一种成功吧，嘿嘿O(∩_∩)O~</p>
+<p>这个题就是一个base58的加密解密，base58和base64不同的地方是，base58是通过<strong>大进制转换</strong>，将其他进制转化成58进制，而base64,32,16都是通过2进制位数<strong>8位变6位</strong>实现的，所以这段代码就是一个进制转换代码，其中有很多混淆迷惑的部分，我们这里就只说在ida分析出来的这个进制算法。</p>
+<p>接下来就来分析一下他的进制换算的算法思路吧~~~</p>
+<p>ida中的核心算法图（横线是作用代码，未标横线便是混淆代码）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/2-1.png" alt="ida分析图"></p>
+<p>v21是我们输入的值；v11是输出数组<br><strong>循环方式：</strong><br>外循环：输入字符循环<br>内循环：每一个字符做进制运算，先%再\一直到为0为止，然后分别赋到v11的各个数组里面去</p>
+<p>开始我按照算法进行推理，但发现如果直接计算，是看不出什么规律的甚至越看越乱，一直到我在纸做了一下推理，才发现原理很简单。<br>首先，我们回顾一下，十六进制0xabcd转十进制，首先要得到十进制末尾，很简单0xabcd%10，我做了一下实践，求余符合分配率，所以我可以分解成    <strong>0xa000 % 10 + 0xb00 % 10 + 0xc0 % 10 + 0xd % 10</strong>，然后想得到倒数第二位，那么就是<strong>0xabcd \ 10 == X<sub>1</sub></strong>,再让 <strong>X<sub>1</sub> % 10</strong>，以此类推，怎么样是不是跟我们的上面的式子很是类似？接下来，回到我们的58进制</p>
+<p>用十六进制转58进制，要注意的一个问题是，这里我们的十六进制是按照两个字节为一个整体（因为我们输入的字符asc是word型的，所以就按照word进行计算），其实可以说是256进制，我们就姑且称之为双十六进制，然后进行计算。假设我们输入值为0xabcd，按照算法逻辑，它先是进来0xab，V<sub>11</sub>[22] = 0xab % 58 ，然后的整除放到一边，我们先跳出第一层for循环，看下一个for循环，进来v21=0xcd 这时再一次计算 V<sub>11</sub>[22] =   ((V<sub>11</sub>[22] &lt;&lt; 8) + 0xcd) % 58，然后得出58进制的末尾</p>
+<p>这里不要直接算，把它拆分成如下<br><strong> (((0xab % 58) &lt;&lt; 8) + 0xcd ) % 58</strong></p>
+<p><strong>=((0xab00 % 58) + 0xcd ) % 58</strong></p>
+<p><strong>=0xab00 % 58 +0xcd % 58</strong>        #(这里已经和我们上面十六进制转十进制完全一致了，下面更清晰一点)</p>
+<p><strong>=0xabcd % 58</strong></p>
+<p>ps：公式用到的原理<br><strong>a % b &lt;&lt; 8 == a &lt;&lt; 8 % b ===== a % b == a00 % b    (俺感觉是交换律)</strong><br><strong>a % b % b = a % b</strong></p>
+<p>到这里就很清楚了，然后就是整除，再给第二位，之后根据下标对应字符，balabala的，就不多解释了，最后放一下我自己写的base58的py</p>
+<pre><code>def str_hex(a):
+    return &quot;&quot;.join([hex(ord(a[i])).replace(&quot;0x&quot;,&quot;&quot;) for i in range(len(a))])        #字符串转16进制
+
+def encode_58(a):       #加密
+    c=&quot;&quot;
+    while(a!=0):
+        c=dic[a%58]+c   #取末尾
+        a=a//58         #整除进位
+    return c
+
+def decode_58(a):
+    c=0
+    for i in range(len(a)):
+        c+=pow(58,i)*dic.index(a[len(a)-i-1])      #解密
+    return c
+
+def hex_str(a):
+    return &#39;&#39;.join([chr(int(a[i:i+2],16)) for i in range(0,len(a),2)])              #16进制转字符串
+
+input_en=&quot;base58_is_boring&quot;
+input_de=&quot;D9cS9N9iHjMLTdA8YSMRMp&quot;
+dic=&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;                    #表
+output=encode_58(int(str_hex(input_en),16))
+print(&quot;encode ========&gt;   &quot;,output)
+output=hex_str(hex(decode_58(input_de)).replace(&quot;0x&quot;,&quot;&quot;))
+print(&quot;decode ========&gt;   &quot;,output)
+</code></pre><p>效果图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/2-2.png" alt="base58效果图"></p>
+<p>从不同的思维方向去看待问题，问题便会得到解决，这次学习有很大的帮助，继续努力O(∩_∩)O~</p>
 
         </div>
         <!-- .entry-content -->
@@ -404,9 +445,26 @@ print(flag)
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/2020/02/26/Frida工具的学习/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                Frida工具的学习</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
         
           
-            <div class="post-nepre full next">
+            <div class="post-nepre half next">
           
             <a href="/2020/02/21/linux学习/" rel="next">
               <div class="background">
