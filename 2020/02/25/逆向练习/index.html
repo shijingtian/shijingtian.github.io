@@ -374,9 +374,9 @@ for i in range(len(arr1)):
     flag+=dic[arr0.index(arr1[i])]        #根据词频去查之前的字典就得到相应的flag
 flag+=&quot;}&quot;
 print(flag)
-</code></pre><p>最后祭奠一下卡了半天出错的地方的地方，这里他因为第二个数是0，所以出现了align8（意思是8个0）这个不合理的玩意<em>(:з」∠)__(:з」∠)</em>，没有看到，所以没找到数组里的0，还以为逻辑有错，<em>(:з」∠)</em>卡时候的心态爆炸，发现之后更心态爆炸<br><em>align8图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4.png" alt="艹"><br><em>d键之后的图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4-1.png" alt="艹"></p>
-<p>可见有时候看到数据连在一起，先d一d是一个好习惯，<em>(:з」∠)</em>（一种植物）</p>
-<h1 id="功放世界————testre（西湖论剑预选赛）"><a href="#功放世界————testre（西湖论剑预选赛）" class="headerlink" title="功放世界————testre（西湖论剑预选赛）"></a>功放世界————testre（西湖论剑预选赛）</h1><p>首先这道题是base58，俺看出来了它是一个进制转换的函数，但是原理搞了半天也没搞懂，还是算法基础太差，唉，不过虽然思考的时间很久，但最后自己有了一个很明确很好的理解思路，我感觉这也算是有收获，也算是一种成功吧，嘿嘿O(∩_∩)O~</p>
+</code></pre><p>最后祭奠一下卡了半天出错的地方的地方，这里他因为第二个数是0，所以出现了align8（意思是8个0）这个不合理的玩意 _ (:з」∠) _ _ (:з」∠) _ ，没有看到，所以没找到数组里的0，还以为逻辑有错，_ (:з」∠) _卡时候的心态爆炸，发现之后更心态爆炸<br><em>align8图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4.png" alt="艹"><br><em>d键之后的图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4-1.png" alt="艹"></p>
+<p>可见有时候看到数据连在一起，先d一d是一个好习惯，_ (:з」∠) _（一种植物）</p>
+<h1 id="攻防世界————testre（西湖论剑预选赛）"><a href="#攻防世界————testre（西湖论剑预选赛）" class="headerlink" title="攻防世界————testre（西湖论剑预选赛）"></a>攻防世界————testre（西湖论剑预选赛）</h1><p>首先这道题是base58，俺看出来了它是一个进制转换的函数，但是原理搞了半天也没搞懂，还是算法基础太差，唉，不过虽然思考的时间很久，但最后自己有了一个很明确很好的理解思路，我感觉这也算是有收获，也算是一种成功吧，嘿嘿O(∩_∩)O~</p>
 <p>这个题就是一个base58的加密解密，base58和base64不同的地方是，base58是通过<strong>大进制转换</strong>，将其他进制转化成58进制，而base64,32,16都是通过2进制位数<strong>8位变6位</strong>实现的，所以这段代码就是一个进制转换代码，其中有很多混淆迷惑的部分，我们这里就只说在ida分析出来的这个进制算法。</p>
 <p>接下来就来分析一下他的进制换算的算法思路吧~~~</p>
 <p>ida中的核心算法图（横线是作用代码，未标横线便是混淆代码）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/2-1.png" alt="ida分析图"></p>
