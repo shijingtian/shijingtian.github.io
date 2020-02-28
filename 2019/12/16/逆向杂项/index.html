@@ -353,7 +353,16 @@ printf(b);
 <p>做了一道功放世界新放的逆向，名称：Mysterious<br>难度不大，想试着直接静态调试，发现卡在了一个函数身上，思路也是卡死了，应该想到这是一道溢出的<br>ida图片分析如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/c-atoi-1.png" alt="Mysterious"><br>思路想通了很简单，溢出string给到v12、v13、v14，然后string给v10,就是卡在了atoi遇到非数字就截止但前面都会转换的功能上，知道之后，输入122xyz，122给了v10，剩下xyz分别给了v12、v13、v14，得到结果<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/c-atoi-2.png" alt="Mysterious"></p>
 <p>本内容中的参数摘抄于<a href="https://blog.csdn.net/lanzhihui_10086/article/details/39960027" target="_blank" rel="noopener">lanzhihui_</a>的csdn</p>
 <h2 id="C格式问题"><a href="#C格式问题" class="headerlink" title="C格式问题"></a>C格式问题</h2><p>1.for循环，想要4个4个的跳，第三部分格式应为i=i+4而不是i+=4，不然会报Missing brace</p>
-<h1 id="python"><a href="#python" class="headerlink" title="python"></a>python</h1>
+<h1 id="python"><a href="#python" class="headerlink" title="python"></a>python</h1><h2 id="pyton的一些骚姿势（就是简便代码写法）"><a href="#pyton的一些骚姿势（就是简便代码写法）" class="headerlink" title="pyton的一些骚姿势（就是简便代码写法）"></a>pyton的一些骚姿势（就是简便代码写法）</h2><p>for循环可以写成    <code>[print(i) for i in range(10)]</code>    （后面的很多式子都会用到这个）</p>
+<p>字符和数组[asc码]的拼接    <code>str+=&quot;&quot;.join([chr(i) for i in (arr)])</code>    </p>
+<p>a<sub>1</sub>,a<sub>2</sub>的快速建立(z3用的比较方便)：<code>[print(&quot;a%d=%d&quot; % (i,arr[i])) for i in range(10)]</code>(将arr值分别给a1,a2,a3)</p>
+<h2 id="字典的建立"><a href="#字典的建立" class="headerlink" title="字典的建立"></a>字典的建立</h2><p>个人感觉没啥用，但也算是知识点，就放到这里来</p>
+<pre><code>a=[1,2,3];b=[&#39;a&#39;,&#39;b&#39;,&#39;c&#39;]
+ddd=zip(a,b)        #zip()将a,b打包成元祖，就是1和a一组，2和b一组
+dic=dict(ddd)        #建立dict字典    dict正常建立：dict={1:&#39;a&#39;,2:&#39;b&#39;}    
+print(dic)    
+</code></pre><p>效果图如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/python-2.png" alt="python字典"><br>这里说一下，我在做ctf移位复原器的时候，想用这个，但发现如果里面dic[]里面的值是一种式子而不是直接的指定字符，就类似与是dic[mov_dic[i+2]]而不是dic[1]返回的类型就会一直是nobetype，什么也没法转换的一种类型，我人都傻了，技能有限，等以后有这个实力了，再继续利用</p>
+
         </div>
         <!-- .entry-content -->
         <div class="single-reward">
@@ -384,7 +393,7 @@ printf(b);
           
             <div class="post-nepre half previous">
           
-            <a href="/2019/12/16/日常逆向ctf练习/" rel="prev">
+            <a href="/2020/01/29/博客搭建自学注意事项/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -392,7 +401,7 @@ printf(b);
               Previous Post</span>
               <div class="info">
                 <h3>
-                逆向ctf练习</h3>
+                博客搭建自学注意事项</h3>
                 <hr>
               </div>
             </a>
@@ -402,7 +411,7 @@ printf(b);
           
             <div class="post-nepre half next">
           
-            <a href="/2018/12/12/Hexo-Theme-Sakura/" rel="next">
+            <a href="/2019/12/16/日常逆向ctf练习/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -410,7 +419,7 @@ printf(b);
               Next Post</span>
               <div class="info">
                 <h3>
-                Hexo-Theme-Sakura</h3>
+                逆向ctf练习</h3>
                 <hr>
               </div>
             </a>
