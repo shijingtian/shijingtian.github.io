@@ -330,14 +330,15 @@ s2 = str[ :6];           //&#39;String&#39;
 s3 = str[10: ];           //&#39;slice&#39;
 s4 = str[5];               //&#39;g&#39;
 
-</code></pre><h2 id="ctf实践"><a href="#ctf实践" class="headerlink" title="ctf实践"></a>ctf实践</h2><pre><code>auto i;
+</code></pre><p>上述内容摘抄于<a href="https://blog.csdn.net/charlesgodx/article/details/84866365" target="_blank" rel="noopener">Thunder_J</a>的csdn</p>
+<h2 id="注意问题"><a href="#注意问题" class="headerlink" title="注意问题"></a>注意问题</h2><p>里面的语法不支持i+=1;只支持<strong>i=i+1</strong>；<br>想打印出ascii值，需要的是Message(“%x”,ord(xxx)),必须要有前面的格式化字符，不然只会给你打印出字符来。</p>
+<h2 id="ctf实践"><a href="#ctf实践" class="headerlink" title="ctf实践"></a>ctf实践</h2><pre><code>auto i;
 for(i=0x40213b;i&gt;=0x402124;i--)
 {
     Message((Byte(i)^6)-1);        //我发现他自己转成字符串了，真方便O(∩_∩)O~~
 }
 Message(&quot;\n&quot;)
 </code></pre><p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/idc-1.png" alt="idc功能实现"></p>
-<p>本内容大部分摘抄于<a href="https://blog.csdn.net/charlesgodx/article/details/84866365" target="_blank" rel="noopener">Thunder_J</a>的csdn</p>
 <h1 id="C语言"><a href="#C语言" class="headerlink" title="C语言"></a>C语言</h1><h2 id="常见函数"><a href="#常见函数" class="headerlink" title="常见函数"></a>常见函数</h2><h3 id="atoi-amp-amp-itoa"><a href="#atoi-amp-amp-itoa" class="headerlink" title="atoi &amp;&amp; _itoa"></a>atoi &amp;&amp; _itoa</h3><p><strong>atoi</strong></p>
 <p>参数：char</p>
 <p>作用：字符串（字符串为char类型）转int型</p>
