@@ -221,6 +221,13 @@
                         </a>
                       </li>
                     
+                      <li>
+                        <a href="/categories/漏洞/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          漏洞
+                        </a>
+                      </li>
+                    
                   </ul>
                 
               </li>
@@ -423,19 +430,24 @@ def encode_58(a):       #加密
 def decode_58(a):
     c=0
     for i in range(len(a)):
-        c+=pow(58,i)*dic.index(a[len(a)-i-1])      #解密
-    return c
+        c+=pow(58,i)*dic.index(a[len(a)-i-1])      #解密这里我换了个方法，跟之前不一样了，因为从头直接翻译字符串有时候会出错。他的第一位可能是没用的，所以我们从最后一位开始就是最好的选择
+    out=&quot;&quot;;div=c
+    while(div&gt;0):
+        div, mod = divmod(div, 256);out=chr(mod)+out
+    return out
 
 def hex_str(a):
-    return &#39;&#39;.join([chr(int(a[i:i+2],16)) for i in range(0,len(a),2)])              #16进制转字符串
+    return &#39;&#39;.join([chr(int(a[i:i+2],16)) for i in range(len(a)-2,-1,-2)])             #16进制转字符串
+print()
+input_en=&quot;flag{63510cf7-2b80-45e1-a186-21234897e5cd}&quot;
+input_de=&quot;BiJZHKtNhHyDe8kSF878CyFgq7h44x1MqUEXiUFJW3gRfQX1MjePwuKHB8&quot;
 
-input_en=&quot;base58_is_boring&quot;
-input_de=&quot;D9cS9N9iHjMLTdA8YSMRMp&quot;
-dic=&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;                    #表
+dic=&quot;ABCDEFGHJKLMNPQRSTUVWXYZ123456789abcdefghijkmnopqrstuvwxyz&quot;                    #表
 output=encode_58(int(str_hex(input_en),16))
 print(&quot;encode ========&gt;   &quot;,output)
-output=hex_str(hex(decode_58(input_de)).replace(&quot;0x&quot;,&quot;&quot;))
+output=decode_58(input_de)
 print(&quot;decode ========&gt;   &quot;,output)
+
 </code></pre><p>效果图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/2-2.png" alt="base58效果图"></p>
 <p>从不同的思维方向去看待问题，问题便会得到解决，这次学习有很大的帮助，继续努力O(∩_∩)O~</p>
 
@@ -729,6 +741,13 @@ $(document).ready(function() {
                 <a href="/categories/杂/">
                   <i class="fa fa-code" aria-hidden="true"></i>
                   杂
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/漏洞/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  漏洞
                 </a>
               </li>
             
