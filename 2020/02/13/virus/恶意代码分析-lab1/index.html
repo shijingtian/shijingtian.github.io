@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">poc脚本研究报告 | 蝉3301</title>
+  <title itemprop="name">恶意代码分析-lab1 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -314,7 +314,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      poc脚本研究报告</h1>
+      恶意代码分析-lab1</h1>
       <p class="entry-census">
         <span>
           <a href="shijingtian.github.io">
@@ -326,7 +326,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2020-3-10<span class="bull">
+        2020-2-13<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -340,8 +340,57 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>和hr作了约定一个星期学习POC脚本，这里放到博客里来进行记录，个人理解POC脚本实际上也是漏洞的复现，正好最近自己的移动安全作业要复现一个cve漏洞，所以就直接把他们联系到一起吧。</p>
-<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>名称：POC<br>全称：Proof of Concept（观点验证程序）<br>安全范围：漏洞复现，实现成功利用的脚本</p>
+          <p>之前学了PE结构，dll注入以及一些相关的逆向知识后，正式开始恶意代码分析的学习，先从这本恶意代码分析开始，争取一个星期把它消化完。</p>
+<h2 id="lab1-1"><a href="#lab1-1" class="headerlink" title="lab1-1"></a>lab1-1</h2><p><a href="http://virustotal.com" target="_blank" rel="noopener">virustotal.com</a><br>可以直接上传文件查看分析报告，会对比其中相关的哈希值，查找库是否此文件有问题第一章的问题稍微都简单一些，这里就简单带过<br><strong>分析：</strong><br>有病毒特征，特征如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/1-1.png" alt="病毒特征"><br>从PE-stu查看文件可知，时间戳的二进制是0x4d0e2fd3<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/1-2.png" alt="病毒特征"><br>然后就是转换成时间的过程，这里应该有更简单的方法，但是我想学习并练习一下C++的使用，所以写了一个程序</p>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;ctime&gt;
+using namespace std;
+
+void unix2time(int n, char strTime[], int buflen)
+{
+    struct tm tm = *localtime((time_t *)&amp;n);    //这里的定义不太清楚，我傻了
+    strftime(strTime, buflen-1, &quot;%Y-%m-%d %H:%M:%S&quot;, &amp;tm);
+        strTime[buflen-1] = &#39;\0&#39;;
+}
+
+int main(void)
+{
+    int n;
+    char strTime[100]={0};
+    scanf(&quot;%p&quot;,&amp;n);            //输入十六进制，记住p，记住是&amp;n不是n
+    unix2time(n,strTime,sizeof(strTime));
+    printf(&quot;%s&quot;, strTime);
+}
+</code></pre><p>exe时间：2010-12-20 00:16:19<br>dll时间：2010-12-20 00:16:38<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/1-3.png" alt="病毒特征"><br>有效字符串过少，但import库里面的函数数目正常，查找字符串也是正常，exe程序应该是未混淆未加壳<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/1-4.png" alt="病毒特征"><br>copy find creat file可以看出创建并查找了某个文件，可能是进行了电脑上系统文件的替换<br>中毒情况是屏幕背景变黑，应该是改变屏幕程序的文件了</p>
+<p>dll文件里有CreateProcess和Sleep，同时import导入了WS2_32.dll的库的一些函数，其中一些函数提供了联网的功能</p>
+<p>从dll文件中可以看到一个ip地址，以为是教学使用所以是具体的，真正恶意代码一般是路由的公网ip</p>
+<p>文件目的：dll是一个后门，exe用来安装运行dll文件的</p>
+<p>其中exec与sleep结合使用，需要特别关注，可能是通过网络给后门程序传达命令的</p>
+<p>##lab1-2<br><strong>分析：</strong><br>有病毒特征，加upx壳，尝试脱壳，esp定律，走到ep，dump出来就行</p>
+<p>查看导入函数：<br>StartServiceCtrlDispatcherA、CreateServiceA、OpenSCManagerA（advapi32.dll）</p>
+<blockquote>
+<p>StartServiceCtrlDispatcherA：将服务进程的主线程连接到服务控制管理器，这使得线程成为调用进程的服务控制调度程序线程。</p>
+</blockquote>
+<p>CreateThread（kernal.dll）</p>
+<p>InternetOpenUrlA（wininet.dll）</p>
+<blockquote>
+<p>访问相关网络资源</p>
+</blockquote>
+<p>总结：创建一个线程，创建新的服务并控制</p>
+<p>##lab1-3<br><strong>分析：</strong><br>有病毒特征，加了壳，是FSG壳，但是看开头三个地址就知道那是最终的目标，然后f8下去找到的入口，参考图如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/3-1.png" alt="病毒特征"></p>
+<p>有两个新库oleaut32.dll、ole32</p>
+<p>CoCreateInstance（ole32）<br>SysAllocString（oleaut32.dll）</p>
+<p>最终感染就是打开一个网站<a href="http://www.malwareanalysisbook.com/ad.html" target="_blank" rel="noopener">http://www.malwareanalysisbook.com/ad.html</a></p>
+<p>##lab1-4<br><strong>分析：</strong><br>有病毒特征，无壳未混淆，输入库结构清晰</p>
+<p>有create、movefile之类的函数，还有openprocess，loadresource的函数</p>
+<blockquote>
+<p>GetWindowsDirectoryA：得到系统文件目录</p>
+</blockquote>
+<p>通过分析好像是修改了一个wupdmgr的程序，网络查阅发现是windows更新的程序（可删除），但是有病毒伪造的可能，所以确定了，新建了wupdmgr文件，植入病毒</p>
+<p>这里书本给了提示，通过resource hacker可以发现此文件在PE文件里藏了一个可执行exe程序</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/virus/lab1/4-1.png" alt="病毒特征"></p>
+<p>将exe程序dump出来之后可以发现 __imp_URLDownloadToFileA、WinExec<br>远程下载程序并执行，就此初步目的分析结束</p>
+<p>lab1的练习结束，发现答案解析比我想象的要简单，需要加快速度，奥利给！！</p>
 
         </div>
         <!-- .entry-content -->
@@ -373,7 +422,7 @@
           
             <div class="post-nepre half previous">
           
-            <a href="/2020/03/17/ctf/逆向练习/" rel="prev">
+            <a href="/2020/02/14/re/PE-ELF文件结构/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -381,7 +430,7 @@
               Previous Post</span>
               <div class="info">
                 <h3>
-                逆向练习</h3>
+                PE——ELF文件格式</h3>
                 <hr>
               </div>
             </a>
@@ -391,7 +440,7 @@
           
             <div class="post-nepre half next">
           
-            <a href="/2020/03/10/cve/poc脚本研究报告/" rel="next">
+            <a href="/2020/01/29/博客搭建自学注意事项/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -399,7 +448,7 @@
               Next Post</span>
               <div class="info">
                 <h3>
-                poc脚本研究报告</h3>
+                博客搭建自学注意事项</h3>
                 <hr>
               </div>
             </a>

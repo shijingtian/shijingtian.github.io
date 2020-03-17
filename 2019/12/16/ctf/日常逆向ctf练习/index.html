@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">poc脚本研究报告 | 蝉3301</title>
+  <title itemprop="name">逆向ctf练习 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -314,7 +314,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      poc脚本研究报告</h1>
+      逆向ctf练习</h1>
       <p class="entry-census">
         <span>
           <a href="shijingtian.github.io">
@@ -326,7 +326,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2020-3-10<span class="bull">
+        2019-12-16<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -340,9 +340,76 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>和hr作了约定一个星期学习POC脚本，这里放到博客里来进行记录，个人理解POC脚本实际上也是漏洞的复现，正好最近自己的移动安全作业要复现一个cve漏洞，所以就直接把他们联系到一起吧。</p>
-<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>名称：POC<br>全称：Proof of Concept（观点验证程序）<br>安全范围：漏洞复现，实现成功利用的脚本</p>
+          <h2 id="nctf——HomuraVM"><a href="#nctf——HomuraVM" class="headerlink" title="nctf——HomuraVM"></a>nctf——HomuraVM</h2><p>虚拟机的题目，只要把每个字符代表的意思读懂就行</p>
+<p>MCh:    r2=(r1+flag[xxx])-2<em>(r1 &amp; flag[xxx]);</em>(flag+1)<br>{mG}:    <em>flag[xxx]=r2;r2=0<br>Hv:        </em>(flag+1);r2=r1<br>{aG}:    r1=0;r2=0<br>[ur]:        r1=flag[xxx];flag=0<br>Ov:        <em>(flag-1);(r2=r1)[无用]<br>a:         r1–;<br>r:             r1++;<br>h:            </em>(flag+1)</p>
+<p>下面是wp</p>
+<pre><code class="python">def fuc(r1,flag):
+    return (r1 + flag) - 2 * (r1 &amp; flag)
+order_list1=[&quot;1&quot;,&quot;aaa&quot;,&quot;rr&quot;,&quot;rarara&quot;,&quot;rararrr&quot;,&quot;araraa&quot;,&quot;rararrara&quot;,&quot;rrrarrr&quot;,&quot;aarrarr&quot;,&quot;aaarrar&quot;,&quot;rrrarr&quot;,&quot;aarrraa&quot;,&quot;arraar&quot;,&quot;rrraaarr&quot;,&quot;aaarrrrarr&quot;,&quot;rrrraarrarr&quot;,&quot;rrarra&quot;,&quot;aaraar&quot;,&quot;ovrrarra&quot;,&quot;aarrrar&quot;,&quot;rraarra&quot;,&quot;rrar&quot;,&quot;aarrar&quot;,&quot;rrraar&quot;,&quot;rrrraa&quot;,&quot;rrarra&quot;,&quot;rrrrrr&quot;,&quot;aaaar&quot;,&quot;rraaa&quot;,&quot;aarra&quot;,&quot;rrar&quot;,&quot;aarraa&quot;,&quot;aarrara&quot;,&quot;aarrarar&quot;]
+end=[27,114,17,118,8,74,126,5,55,124,31,88,104,7,112,7,49,108,4,47,4,105,54,77,127,8,80,12,109,28,127,80,29,96]
+count=1
+flag=[125];tem=[]
+r1=0;r2=0
+out=&quot;&quot;
+while(count&lt;=34):
+    for i in range(25,126):
+        if(count==1):
+            if (fuc(flag[count-1],i) == end[count - 1]):
+                flag.append(i)
+                out += chr(flag[count])
+                break
+        else:
+            r_c=order_list1[count-1].count(&#39;r&#39;)
+            a_c=order_list1[count-1].count(&#39;a&#39;)
+            i1=i+r_c-a_c
+            #print(count,flag,end,i1)
+            if(fuc(end[count-2],i1)==end[count-1]):
+                flag.append(i)
+                out+=chr(flag[count])
+                break
+    count+=1
+print(out)
+</code></pre>
+<h2 id="easyRE——-忘了那个比赛出的了"><a href="#easyRE——-忘了那个比赛出的了" class="headerlink" title="easyRE——(忘了那个比赛出的了)"></a>easyRE——(忘了那个比赛出的了)</h2><p>很简单的逻辑，判断长度然后judge一下就出来了<br><img src="https://img-blog.csdnimg.cn/20191123104219444.png" alt="在这里插入图片描述"><br>然后打开judge，有一个sp手段，修复之后，发现什么都不是<br><img src="https://img-blog.csdnimg.cn/20191123104358112.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NqdDY3MDk5NDU2Mg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>但观察到，代码下方有许多的数据<br><img src="https://img-blog.csdnimg.cn/20191123104413388.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NqdDY3MDk5NDU2Mg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">看到开始发现有一个judge的异或操作，所以理解题目意思，将judge的数据与0xc异或然后得到正常代码，正常运行一下就行（这里注意运行之前先把judge全部变成data，不然会出现代码混乱类似于以下情况）</p>
+<p>未转换成data图<br><img src="https://img-blog.csdnimg.cn/20191123104838373.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NqdDY3MDk5NDU2Mg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>转换成data图<br><img src="https://img-blog.csdnimg.cn/2019112310543429.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NqdDY3MDk5NDU2Mg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>然后就是一个究极简单的异或，做一个简单的题放松一下</p>
+<pre><code class="python">a=[102,109,99,100,127,107,55,100,59,86,96,59,110,112]
+flag=&quot;&quot;
+for i in range (len(a)):
+    flag+=chr(a[i]^i)
+print flag
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/2019112310553444.png" alt="在这里插入图片描述"></p>
+<h2 id="blackcase"><a href="#blackcase" class="headerlink" title="blackcase"></a>blackcase</h2><p>又是一个小小的虚拟机问题，给的txt文件就是一个测试通过后显示里面的文本，没别的大用，主要是第二次输入的password，然后找到相关的op码代表的含义就可以了。</p>
+<p>这里是通过我们输入的值，call相关的sub<br><img src="https://img-blog.csdnimg.cn/20191203153058970.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NqdDY3MDk5NDU2Mg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>这里就是我们的一些操作<br><img src="https://img-blog.csdnimg.cn/20191203153130192.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NqdDY3MDk5NDU2Mg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>根据动调找到八个相关的操作码<br><img src="https://img-blog.csdnimg.cn/20191203153411457.png" alt="&#39;*&#39;,&#39;\&#39;&#39;,&#39;&gt;&#39;,&#39;Z&#39;,&#39;?&#39;,&#39;N&#39;,&#39;j&#39;,&#39;+&#39;,&#39;(&#39;`在这里插入代码片`"><br>在这里有一些位置要标记<br>a1 + 665                #类似一个暂时寄存器（设为eax）<br>a1 + 664                #得到下一位输入的值<br>a1 + 8                    #得到我们输入的字符串str<br>a1 + 288                #index（下标）</p>
+<p>分析函数<br>fuc1:    eax=str[index]<br>fuc2:    str[index[=eax<br>fuc3:    eax=eax+next_input-33<br>fuc4:    eax=eax-next_input+33<br>fuc5:    index++<br>fuc6:    check<br>fuc7:    index–<br>fuc8:    str[index] = input[index+next_input-48]-49<br>fuc9:    index=next_input;    str[index] = input[index+next_input-48]-49</p>
+<p>然后构造opcode序列就好<br>$t/80表示：<br>var = str[0] var = 80<br>var = var - input[2] + 33 = 66<br>str[0] = var<br>index++</p>
+<p>类似，可构建产生Binggo的opcode序列为 $t/80$C)80$CI80$CX80$Cg80$Cj8<br>处理多余位数 0#J1<br>index– uuuuuuu<br>调用func6 Es</p>
+<p>$t/80$C)80$CI80$CX80$Cg80$Cj80#J1uuuuuuuEs<br>（因为好长时间了，自己的操作码都忘了，所以这里直接放进大佬的操作）</p>
+<p>这里可以多解的，我们不让check做最后一次，我们让check中的else实现，然后打印某一位置的字符，再通过相关操作把该位置的字符改成Binggo也是可以的</p>
+<h2 id="网安运维塞——re3（0x27BC86A9）"><a href="#网安运维塞——re3（0x27BC86A9）" class="headerlink" title="网安运维塞——re3（0x27BC86A9）"></a>网安运维塞——re3（0x27BC86A9）</h2><p>这道题是一个类矩阵乘法，2x2的矩阵进行相乘，首先要求我们输入三个数，然后一个一个检测，每个数进行右移，每进行一次就做一次运算，最后得到一个0x27BC86A9即可<br><img src="https://img-blog.csdnimg.cn/20191203155613945.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NqdDY3MDk5NDU2Mg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20191203155609198.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NqdDY3MDk5NDU2Mg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>这里有两个矩阵，我们称其为q_list1和q_list2,这里我卡了很长时间，本来是想爆破的，但后来发现一直都不行，无奈只好仔细看算法。</p>
+<p>我们输入的数转成二进制，每一位都会进行判断，如果是1，那便q_list2=q_list1<em>q_list2，不管是不是1都要进行q_list1</em>=q_list1。</p>
+<p>而且再仔细看，q_list2的初值比较特殊，既q_list2[0]*q_list1=q_list1,乘任何数都等于任何数它本身，相当于乘法里的1，而且那么我们可以把最后结果变成这样<br>q_list2=q_list1[0] x q_list[1] x……x q_list[n]</p>
+<p>q_list[1] = q_list[0]^2(这里指2次方)<br>q_list[2] = q_list[0]^4<br>…<br>q_list[2] = q_list[0]^( 2^(n-1) )<br>最后我们我们就让q_list[0]自乘，一直得到我们想要的值就行，他的自乘次数就是我们想要的值，爆破就完事了</p>
+<pre><code>def fff(v27):
+    return (v27 - 666666666 * ((((0x67144772A3C047E5 * v27) &gt;&gt; 64) &gt;&gt; 28) - (v27 &gt;&gt; 63)))
+def fuc(q_list1, q_list2):                            #为了加快爆破速度，这里我们把它简化
+    q_list3 = [[0, 0], [0, 0]]
+    q_list3[0][0] = fff(fff(fff(q_list1[0][0] * q_list2[0][0])) + fff(q_list1[0][1] * q_list2[1][0]))
+    q_list3[0][1] = fff(fff(fff(q_list1[0][0] * q_list2[0][1])) + fff(q_list1[0][1] * q_list2[1][1]))
+    q_list3[1][0] = fff(fff(fff(q_list1[1][0] * q_list2[0][0])) + fff(q_list1[1][1] * q_list2[1][0]))
+    q_list3[1][1] = fff(fff(fff(q_list1[1][0] * q_list2[1][0])) + fff(q_list1[1][1] * q_list2[1][1]))
+    return q_list3
 
+for i in range(pow(2,32)):                                    #这里让他跑就行了，大概20分钟所有数据就都出来了
+    q_list1=fuc(q_list1,q)                    
+    #print(i)
+    if(q_list1[0][1]==0x220951BB):
+        print (q_list1)
+        print(i)
+    #print(q_list1)
+    #print (i)
+</code></pre><p>最后得到三批数据，带进去就好了，这里提醒一下，我们出来的次数要加1才是最后的值</p>
+<h6 id="blackcase题目大佬地址-https-blog-csdn-net-q1uTruth-article-details-99943837"><a href="#blackcase题目大佬地址-https-blog-csdn-net-q1uTruth-article-details-99943837" class="headerlink" title="blackcase题目大佬地址    https://blog.csdn.net/q1uTruth/article/details/99943837"></a>blackcase题目大佬地址    <a href="https://blog.csdn.net/q1uTruth/article/details/99943837" target="_blank" rel="noopener">https://blog.csdn.net/q1uTruth/article/details/99943837</a></h6>
         </div>
         <!-- .entry-content -->
         <div class="single-reward">
@@ -373,7 +440,7 @@
           
             <div class="post-nepre half previous">
           
-            <a href="/2020/03/17/ctf/逆向练习/" rel="prev">
+            <a href="/2020/01/29/博客搭建自学注意事项/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -381,7 +448,7 @@
               Previous Post</span>
               <div class="info">
                 <h3>
-                逆向练习</h3>
+                博客搭建自学注意事项</h3>
                 <hr>
               </div>
             </a>
@@ -391,7 +458,7 @@
           
             <div class="post-nepre half next">
           
-            <a href="/2020/03/10/cve/poc脚本研究报告/" rel="next">
+            <a href="/2018/12/12/Hexo-Theme-Sakura/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -399,7 +466,7 @@
               Next Post</span>
               <div class="info">
                 <h3>
-                poc脚本研究报告</h3>
+                Hexo-Theme-Sakura</h3>
                 <hr>
               </div>
             </a>

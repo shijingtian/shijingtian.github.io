@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">poc脚本研究报告 | 蝉3301</title>
+  <title itemprop="name">逆向练习 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -314,7 +314,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      poc脚本研究报告</h1>
+      逆向练习</h1>
       <p class="entry-census">
         <span>
           <a href="shijingtian.github.io">
@@ -326,7 +326,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2020-3-10<span class="bull">
+        2020-3-17<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -340,8 +340,120 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>和hr作了约定一个星期学习POC脚本，这里放到博客里来进行记录，个人理解POC脚本实际上也是漏洞的复现，正好最近自己的移动安全作业要复现一个cve漏洞，所以就直接把他们联系到一起吧。</p>
-<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>名称：POC<br>全称：Proof of Concept（观点验证程序）<br>安全范围：漏洞复现，实现成功利用的脚本</p>
+          <h1 id="攻防世界————asong"><a href="#攻防世界————asong" class="headerlink" title="攻防世界————asong"></a>攻防世界————asong</h1><p>今天做了几道攻防世界的逆向题，有一道题比较麻烦，虽然不难，但耗费了不少时间，其中有很多时间是可以节省的，所以这次就把这道题记录下来。</p>
+<p>本来打算直接静调出结果，但中间卡在了一个点上，不得不动调，虽然最后发现，动调并没有给多大的帮助0- 0</p>
+<p>放到ida，我已经分好了类，首先输入，然后判断一下开头结尾，之后建立一个字典，最后对输入进行算数处理，逻辑很清晰，没有任何阻碍<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-1.png" alt="ida调试图"></p>
+<p>建立字典里面有个函数说一下，算一个小坑吧，没在这里绊很长时间。<br>首先，他是从that_girl文件里面根据单词出现的频率，每个单词对应相应的出现次数，然后建立了表格，当时我在这里犹豫了一会儿，在这个我标记的case函数里面，他将单词asc改成了相应下标值，我以为需要考虑，可到后来才发现，其实完全不需要考虑他们的位置，只需要记住对应的词频率就ok这里卡了一会的<br><em>建立词频率的函数图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-2-2.png" alt="词频函数图"></p>
+<p>他在建立函数时，大小写全都放到一个词频数组里面去的，也就是说不区分大小写<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-2-1.png" alt="不区分大小写"></p>
+<p>然后运算处理也很简单，首先将我们的各个输入的字符，转化成相对应的频率，再位置变换，再移位交换，最后得到结果<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-3.png" alt="运算函数"></p>
+<p>python代码如下</p>
+<pre><code>flag=&quot;QCTF{&quot;                #建立头
+
+#将给的out文件里面的值取出来
+fd=open(&quot;out&quot;,&quot;rb&quot;)            #这里注意rb取得是数
+buf=fd.read(1)
+arr=[];arr1=[]
+while(buf):
+    arr.append(ord(buf))
+    buf=fd.read(1)
+fd.close()
+
+#最后的移位操作
+for i in range(len(arr)):
+    if(i):
+        arr1.append(((arr[i]&gt;&gt;3)+((arr[(i-1)]&lt;&lt;5)&amp;0xe0)))
+    else:
+        arr1.append(((arr[i]&gt;&gt;3)+((arr[len(arr)-1]&lt;&lt;5)&amp;0xe0)))
+#print(arr1)
+
+#置换操作
+shun=[22,0,6,2,30,24,9,1,21,7,18,10,8,12,17,23,13,4,3,14,19,11,20,16,15,5,25,36,27,28,29,37,31,32,33,26,34,35]                    #这个库之前找错了。。。。。。。。卡了很久，我太蠢了_(:з」∠)_
+
+#置换算法1————暴力循环算法
+for j in range(37):                #因为是一个循环置换，所以让他循环一整个次数，就能回到最初点
+    i=0
+    p=arr1[0]
+    while(shun[i]):
+        arr1[i] = arr1[shun[i]]
+        i=shun[i]
+    arr1[i]=p                    
+#print(arr1)
+
+#置换算法2————逆向算法
+j=1
+p=arr1[j]
+for i in range(37):                #这个就是倒回去一个一个找
+    arr1[j]=arr1[shun.index(j)]
+    j=shun.index(j)
+arr1[j]=p
+
+#查找词频    （这里我没用python的dict字典方法，我感觉有点麻烦，还要用到zip函数，这里我建立了两个匹配数组，一样可以实现，个人认为dict也是建立了两个数组emmmmmmmm）
+dic=&quot;abcdefghijklmnopqrstuvwxyz_\&#39;\n &quot;    #第一个字符串数组
+arr0=[0]*len(dic)
+fw=open(&quot;that_girl&quot;,&quot;r&quot;)
+buf=fw.read(1)
+while(buf):
+    arr0[dic.index(buf.lower())]+=1        #第二个词频数组
+    buf = fw.read(1)
+fw.close()
+
+#出结果
+for i in range(len(arr1)):                
+    flag+=dic[arr0.index(arr1[i])]        #根据词频去查之前的字典就得到相应的flag
+flag+=&quot;}&quot;
+print(flag)
+</code></pre><p>最后祭奠一下卡了半天出错的地方的地方，这里他因为第二个数是0，所以出现了align8（意思是8个0）这个不合理的玩意 _ (:з」∠) _ _ (:з」∠) _ ，没有看到，所以没找到数组里的0，还以为逻辑有错，_ (:з」∠) _卡时候的心态爆炸，发现之后更心态爆炸<br><em>align8图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4.png" alt="艹"><br><em>d键之后的图</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/1-4-1.png" alt="艹"></p>
+<p>可见有时候看到数据连在一起，先d一d是一个好习惯，_ (:з」∠) _（一种植物）</p>
+<h1 id="攻防世界————testre（西湖论剑预选赛）"><a href="#攻防世界————testre（西湖论剑预选赛）" class="headerlink" title="攻防世界————testre（西湖论剑预选赛）"></a>攻防世界————testre（西湖论剑预选赛）</h1><p>首先这道题是base58，俺看出来了它是一个进制转换的函数，但是原理搞了半天也没搞懂，还是算法基础太差，唉，不过虽然思考的时间很久，但最后自己有了一个很明确很好的理解思路，我感觉这也算是有收获，也算是一种成功吧，嘿嘿O(∩_∩)O~</p>
+<p>这个题就是一个base58的加密解密，base58和base64不同的地方是，base58是通过<strong>大进制转换</strong>，将其他进制转化成58进制，而base64,32,16都是通过2进制位数<strong>8位变6位</strong>实现的，所以这段代码就是一个进制转换代码，其中有很多混淆迷惑的部分，我们这里就只说在ida分析出来的这个进制算法。</p>
+<p>接下来就来分析一下他的进制换算的算法思路吧~~~</p>
+<p>ida中的核心算法图（横线是作用代码，未标横线便是混淆代码）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/2-1.png" alt="ida分析图"></p>
+<p>v21是我们输入的值；v11是输出数组<br><strong>循环方式：</strong><br>外循环：输入字符循环<br>内循环：每一个字符做进制运算，先%再\一直到为0为止，然后分别赋到v11的各个数组里面去</p>
+<p>开始我按照算法进行推理，但发现如果直接计算，是看不出什么规律的甚至越看越乱，一直到我在纸做了一下推理，才发现原理很简单。<br>首先，我们回顾一下，十六进制0xabcd转十进制，首先要得到十进制末尾，很简单0xabcd%10，我做了一下实践，求余符合分配率，所以我可以分解成    <strong>0xa000 % 10 + 0xb00 % 10 + 0xc0 % 10 + 0xd % 10</strong>，然后想得到倒数第二位，那么就是<strong>0xabcd \ 10 == X<sub>1</sub></strong>,再让 <strong>X<sub>1</sub> % 10</strong>，以此类推，怎么样是不是跟我们的上面的式子很是类似？接下来，回到我们的58进制</p>
+<p>用十六进制转58进制，要注意的一个问题是，这里我们的十六进制是按照两个字节为一个整体（因为我们输入的字符asc是word型的，所以就按照word进行计算），其实可以说是256进制，我们就姑且称之为双十六进制，然后进行计算。假设我们输入值为0xabcd，按照算法逻辑，它先是进来0xab，V<sub>11</sub>[22] = 0xab % 58 ，然后的整除放到一边，我们先跳出第一层for循环，看下一个for循环，进来v21=0xcd 这时再一次计算 V<sub>11</sub>[22] =   ((V<sub>11</sub>[22] &lt;&lt; 8) + 0xcd) % 58，然后得出58进制的末尾</p>
+<p>这里不要直接算，把它拆分成如下<br><strong> (((0xab % 58) &lt;&lt; 8) + 0xcd ) % 58</strong></p>
+<p><strong>=((0xab00 % 58) + 0xcd ) % 58</strong></p>
+<p><strong>=0xab00 % 58 +0xcd % 58</strong>        #(这里已经和我们上面十六进制转十进制完全一致了，下面更清晰一点)</p>
+<p><strong>=0xabcd % 58</strong></p>
+<p>ps：公式用到的原理<br><strong>a % b &lt;&lt; 8 == a &lt;&lt; 8 % b ===== a % b == a00 % b    (俺感觉是交换律)</strong><br><strong>a % b % b = a % b</strong></p>
+<p>到这里就很清楚了，然后就是整除，再给第二位，之后根据下标对应字符，balabala的，就不多解释了，最后放一下我自己写的base58的py</p>
+<pre><code>def str_hex(a):
+    return &quot;&quot;.join([hex(ord(a[i])).replace(&quot;0x&quot;,&quot;&quot;) for i in range(len(a))])        #字符串转16进制
+
+def encode_58(a):       #加密
+    c=&quot;&quot;
+    while(a!=0):
+        c=dic[a%58]+c   #取末尾
+        a=a//58         #整除进位
+    return c
+
+def decode_58(a):
+    c=0
+    for i in range(len(a)):
+        c+=pow(58,i)*dic.index(a[len(a)-i-1])      #解密这里我换了个方法，跟之前不一样了，因为从头直接翻译字符串有时候会出错。他的第一位可能是没用的，所以我们从最后一位开始就是最好的选择
+    out=&quot;&quot;;div=c
+    while(div&gt;0):
+        div, mod = divmod(div, 256);out=chr(mod)+out
+    return out
+
+def hex_str(a):
+    return &#39;&#39;.join([chr(int(a[i:i+2],16)) for i in range(len(a)-2,-1,-2)])             #16进制转字符串
+print()
+input_en=&quot;flag{63510cf7-2b80-45e1-a186-21234897e5cd}&quot;
+input_de=&quot;BiJZHKtNhHyDe8kSF878CyFgq7h44x1MqUEXiUFJW3gRfQX1MjePwuKHB8&quot;
+
+dic=&quot;ABCDEFGHJKLMNPQRSTUVWXYZ123456789abcdefghijkmnopqrstuvwxyz&quot;                    #表
+output=encode_58(int(str_hex(input_en),16))
+print(&quot;encode ========&gt;   &quot;,output)
+output=decode_58(input_de)
+print(&quot;decode ========&gt;   &quot;,output)
+
+</code></pre><p>效果图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/2-2.png" alt="base58效果图"></p>
+<p>从不同的思维方向去看待问题，问题便会得到解决，这次学习有很大的帮助，继续努力O(∩_∩)O~</p>
+<p>#攻防世界————echo-server（XCTF 3rd-NJCTF-2017）<br>花指令的简单去除，学习一下，深入学习将会在null比赛的逆向的wp中写出，这道题简单的介绍一下一些小的花指令，首先ida分析看到f5的一些不正常表现可以分析出来有花，去花<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-1.png" alt="ida图"></p>
+<p>花简单来说就是junk_data，做一些无意义的汇编操作，并且让ida反汇编失败，这里因为花很简单，所以我们直接手动patch就行了，看到一些奇怪的汇编指令，比如突然jmp，毫无意义的地址，clc等等，都可以对其进行重组，以下是patch点。<br>这里会是一个call loc，nop e8，后面的数c成代码下面的图同理，那个F1@g字符串是key，千万别nop<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-2-1.png" alt="ida图"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-2-2.png" alt="ida图"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-2-3.png" alt="ida图"></p>
+<p>最后效果图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-3-1.png" alt="去花图"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-3-2.png" alt="去花图"></p>
+<p>然后逻辑就很简单了简单的异或，这里就不说了，只是说一下花，就不浪费时间做异或练习了</p>
 
         </div>
         <!-- .entry-content -->
@@ -373,7 +485,7 @@
           
             <div class="post-nepre half previous">
           
-            <a href="/2020/03/17/ctf/逆向练习/" rel="prev">
+            <a href="/2020/03/17/re/逆向杂项/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -381,7 +493,7 @@
               Previous Post</span>
               <div class="info">
                 <h3>
-                逆向练习</h3>
+                逆向杂项</h3>
                 <hr>
               </div>
             </a>
@@ -391,7 +503,7 @@
           
             <div class="post-nepre half next">
           
-            <a href="/2020/03/10/cve/poc脚本研究报告/" rel="next">
+            <a href="/2020/03/10/poc脚本研究报告/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>

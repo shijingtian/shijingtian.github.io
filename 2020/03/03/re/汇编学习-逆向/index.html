@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">poc脚本研究报告 | 蝉3301</title>
+  <title itemprop="name">汇编大学习 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -314,7 +314,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      poc脚本研究报告</h1>
+      汇编大学习</h1>
       <p class="entry-census">
         <span>
           <a href="shijingtian.github.io">
@@ -326,7 +326,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2020-3-10<span class="bull">
+        2020-3-3<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -340,8 +340,30 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>和hr作了约定一个星期学习POC脚本，这里放到博客里来进行记录，个人理解POC脚本实际上也是漏洞的复现，正好最近自己的移动安全作业要复现一个cve漏洞，所以就直接把他们联系到一起吧。</p>
-<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>名称：POC<br>全称：Proof of Concept（观点验证程序）<br>安全范围：漏洞复现，实现成功利用的脚本</p>
+          <p>汇编的基础不能一蹴而就，一步一步在实践中学习得来的，只有这样知识才能稳定的进到脑子里，在用的时候不会出现短路的情况。（emmmmmmmm，断路更合适一点_ (:з」∠) _）</p>
+<p>这里就没有顺序的讲述了，有什么就记什么了，添加个索引到时候自己就可以分类了</p>
+<h1 id="函数约定"><a href="#函数约定" class="headerlink" title="函数约定"></a>函数约定</h1><h2 id="cdecl"><a href="#cdecl" class="headerlink" title="cdecl"></a>cdecl</h2><p>流程：</p>
+<ol>
+<li>push参数</li>
+<li>call memory_location 调用函数，push EIP，保存当前指令地址，然后修改EIP为指定函数地址</li>
+<li>push EBP，保存当前栈底</li>
+<li>函数工作（ps：开始头部一般都是，esp=ebp，esp-=xxx）</li>
+<li>pop EBP</li>
+<li>pop EIP并跳转（ps：这里相当于ret）</li>
+<li>调整之前栈里面保持的参数</li>
+</ol>
+<p>流程图如下：<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-learn/huibian1.png" alt="cdecl流程图"></p>
+<p>其余约定等待更新，预计三天后</p>
+<h1 id="常用指令说明（很常见的不提，这里只提一些关键但不是很普遍的，或者不容易懂得）"><a href="#常用指令说明（很常见的不提，这里只提一些关键但不是很普遍的，或者不容易懂得）" class="headerlink" title="常用指令说明（很常见的不提，这里只提一些关键但不是很普遍的，或者不容易懂得）"></a>常用指令说明（很常见的不提，这里只提一些关键但不是很普遍的，或者不容易懂得）</h1><h2 id="cmp指令-amp-amp-test指令-amp-amp-跳转指令"><a href="#cmp指令-amp-amp-test指令-amp-amp-跳转指令" class="headerlink" title="cmp指令 &amp;&amp; test指令 &amp;&amp; 跳转指令"></a>cmp指令 &amp;&amp; test指令 &amp;&amp; 跳转指令</h2><p><strong>cmp</strong>：通过比较两个寄存器<strong>设置标志位</strong><br>| cmp dst,src    | ZF | CF |<br>|:————–:| :: | :: |<br>|dst=src(重要)   | 1 | 0 |<br>|dst<src 0 1 | |dst>src         | 0 | 0 |<br>所以if(!cmp)是判断字符串是否相同</src></p>
+<p><strong>test</strong>：相当于and（一般看ZF）</p>
+<p><strong>jz，jnz</strong>：ZF=1跳；ZF=0跳    =======    <strong>je，jne</strong><br><strong>jg，jge</strong>：dst&gt;src\目标操作数<strong>大于</strong>源操作数\CF==0跳；jge为大于等于<br><strong>jl，jle</strong>：dst&gt;src\目标操作数<strong>小于</strong>源操作数\CF==0跳；jge为小于等于</p>
+<h2 id="mul-amp-amp-div"><a href="#mul-amp-amp-div" class="headerlink" title="mul &amp;&amp; div"></a>mul &amp;&amp; div</h2><p>乘除不说，说一下结果保存点，EAX与EDX<br>mul：EAX保存低32位、EDX保存高32位<br>div：EAX保存商、EDX保存余数</p>
+<p>格式：</p>
+<p>mul value；div value；</p>
+<h2 id="缓冲区操作指令-amp-amp-重复指令"><a href="#缓冲区操作指令-amp-amp-重复指令" class="headerlink" title="缓冲区操作指令 &amp;&amp; 重复指令"></a>缓冲区操作指令 &amp;&amp; 重复指令</h2><p><strong>movsx、cmpsx、stosx、scasx</strong>（x代表字节大小，可分为b,w,d,q）（这些操作只在EDI、ESI里面执行）</p>
+<p><strong>movsx</strong>：从[ESI]取出字节，交到[EDI]，然后根据DF标志加1或减1<strong>（DF=0，+）\（DF=1，-1）</strong><br><strong>cmpsx</strong>：比对[ESI],[EDI]中的字节<br><strong>stosx</strong>：将指定字节存入[EDI]<br><strong>scasb</strong>：从一串字节中搜索一个值，该值由AL给出，存到[EDI]<br><strong>rep重复指令停止条件</strong><br><strong>rep</strong>：ECX为0时循环终止<br><strong>repe、repz</strong>：ECX为0 or ZF=0 时循环终止（字符串是否相同）<br><strong>repne、repnz</strong>：ECX为0 or ZF=1 时循环终止</p>
+<p>组合：</p>
+<p><strong>rep movsx</strong> ：[EDI]=[ESI] 直到ECX=0；———-memcpy<br><strong>repe cmpsx</strong> ：判断？[EDI+i]==[ESI+i] 直到ECX=0 or ≠；———-memcmp<br><strong>repne scasx</strong> ：从缓冲区中搜索一个字节 直到ECX=0 or = \有便存入<br><strong>rep stosx</strong>：给定初始值赋给一段缓冲区，[EDI]指向缓冲区地址，AL包含初始值；———-memset</p>
 
         </div>
         <!-- .entry-content -->
@@ -373,7 +395,7 @@
           
             <div class="post-nepre half previous">
           
-            <a href="/2020/03/17/ctf/逆向练习/" rel="prev">
+            <a href="/2020/03/10/ctf/抗疫比赛/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -381,7 +403,7 @@
               Previous Post</span>
               <div class="info">
                 <h3>
-                逆向练习</h3>
+                抗疫赛ctf</h3>
                 <hr>
               </div>
             </a>
@@ -391,7 +413,7 @@
           
             <div class="post-nepre half next">
           
-            <a href="/2020/03/10/cve/poc脚本研究报告/" rel="next">
+            <a href="/2020/02/26/Frida工具的学习/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -399,7 +421,7 @@
               Next Post</span>
               <div class="info">
                 <h3>
-                poc脚本研究报告</h3>
+                Frida工具的学习</h3>
                 <hr>
               </div>
             </a>

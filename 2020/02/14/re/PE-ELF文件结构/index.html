@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">poc脚本研究报告 | 蝉3301</title>
+  <title itemprop="name">PE——ELF文件格式 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -314,7 +314,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      poc脚本研究报告</h1>
+      PE——ELF文件格式</h1>
       <p class="entry-census">
         <span>
           <a href="shijingtian.github.io">
@@ -326,7 +326,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2020-3-10<span class="bull">
+        2020-2-14<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -340,8 +340,233 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>和hr作了约定一个星期学习POC脚本，这里放到博客里来进行记录，个人理解POC脚本实际上也是漏洞的复现，正好最近自己的移动安全作业要复现一个cve漏洞，所以就直接把他们联系到一起吧。</p>
-<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>名称：POC<br>全称：Proof of Concept（观点验证程序）<br>安全范围：漏洞复现，实现成功利用的脚本</p>
+          <p>之前老师给了任务，同时自己也学习了很多，所以在这里写一下关于ELF和PE的文件格式的一些学习</p>
+<h2 id="ELF文件格式"><a href="#ELF文件格式" class="headerlink" title="ELF文件格式"></a>ELF文件格式</h2><p>先写出readelf和hexdump的一些用法</p>
+<pre><code>readelf：
+-a            全部展现
+-h            ELF文件头
+-l            程序头
+-S            节区头（注意大写）
+-x index    节区中每个分区的十六进制
+
+hexdump:
+-s            从某个地址开始（可以用0x）
+-n            截取大小
+-C            标准十六进制格式输出
+</code></pre><p>首先观察一下特德文件大体结构，如下图，左边是在磁盘中的结构，右图是运行时的结构，磁盘中分的节区，运行中的分的是段</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-1.png" alt="病毒特征"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-2.png" alt="病毒特征"></p>
+<p>接下来介绍一下刚才图中的三个索引表</p>
+<p><strong>ELF头部</strong>(ELF_Header): 每个ELF文件都必须存在一个ELF_Header,这里存放了很多重要的信息用来描述整个文件的组织,如: 版本信息,入口信息,偏移信息等。程序执行也必须依靠其提供的信息。</p>
+<p><strong>程序头部表</strong>(Program_Header_Table): 可选的一个表，用于告诉系统如何在内存中创建映像,在图中也可以看出来,有程序头部表才有段,有段就必须有程序头部表。其中存放各个段的基本信息(包括地址指针)。</p>
+<p><strong>节区头部表</strong>(Section_Header_Table): 类似与Program_Header_Table,但与其相对应的是节区(Section)。</p>
+<h4 id="ELF-头部："><a href="#ELF-头部：" class="headerlink" title="ELF 头部："></a>ELF 头部：</h4><p>设置一个elf文件常用的数据格式（此为32位）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-1-1.png" alt="病毒特征"></p>
+<pre><code>
+//ELF Header结构体
+#define EI_NIDENT 16
+typedef struct {
+       unsigned char e_ident[EI_NIDENT];    一个数组含有magic，大小端绪、32\64位，文件版本、ABI等信息
+       ELF32_Half e_type;        文件类型：可重定向（.O）、可执行、共享目标文件（.so）
+       ELF32_Half e_machine;    cpu架构
+       ELF32_Word e_version;    文件版本
+       ELF32__Addr e_entry;        代码入口地址
+       ELF32_Off e_phoff;        程序头偏移（==ELF头size）
+       ELF32_Off e_shoff;        节区头偏移
+       ELF32_Word e_flags;        暂无0 -0
+       ELF32_Half e_ehsize;        ELF头size
+       ELF32_Half e_phentsize;    程序头各分段size
+       ELF32_Half e_phnum;        程序头中分段数量
+       ELF32_Half e_shentsize;    节区头各节区size
+       ELF32_Half e_shnum;        节区头节区数量
+       ELF32_Half e_shstrndx;    节区名称于节区数组中的下标
+}Elf32_Ehdr;
+
+
+</code></pre><p>下图为ida与linux中readelf图</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-3.png" alt="病毒特征"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-4.png" alt="病毒特征"></p>
+<p>hex表</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-4-1.png" alt="病毒特征"></p>
+<p>其中Relocatable File（.o文件）不需要执行，因此e_entry字段为0，且没有Program Header Table等执行视图</p>
+<h4 id="程序头部表："><a href="#程序头部表：" class="headerlink" title="程序头部表："></a>程序头部表：</h4><pre><code>
+//每个段的结构
+typedef struct{
+    Elf32_Word p_type;        下文有介绍
+    Elf32_Off p_offset;        段相对于文件的索引地址
+    Elf32_Addr p_vaddr;        段在内存中的虚拟地址
+    Elf32_Addr p_paddr;        段的物理地址
+    Elf32_Word p_filesz;    段在文件中的size
+    Elf32_Word p_memsz;        段在内存中的size
+    Elf32_Word p_flage;        段相关标志(read、write、exec)
+    Elf32_Word p_align;        字节对齐        p_vaddr 和 p_offset 对 p_align 取模后应该等于0。
+} Elf32_phdr;
+
+
+</code></pre><p><strong>p_type</strong> 声明此段的作用类型</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-5.png" alt="病毒特征"></p>
+<p><strong>PT_INTERP</strong>:共享库的加载器<br>执行外部库搜索和加载的程序称为加载器，elf格式的是ld-linux.so，a.out格式是ld.so。而由于加载器可能有多种实现，也可能有多个版本，所以每个二进制文件中都需要指明使用哪个加载器，指明使用哪个加载器的功能就是用segment实现的，这种segment就是PT_INTERP类型。</p>
+<p><strong>PT_DYNAMIC</strong>：记录了elf执行需要的库</p>
+<p><strong>PT_LOAD</strong>：真正的程序存储的地方。这个构成了程序的主体。</p>
+<p>此段文字摘抄于broler作者的csdn博客，一下为其链接</p>
+<p><a href="http://https://blog.csdn.net/ljy1988123/article/details/50404642" target="_blank" rel="noopener">https://blog.csdn.net/ljy1988123/article/details/50404642</a></p>
+<p>以下为ida与readelf读出的程序头部表以及hex图</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-6.png" alt="病毒特征"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-6-1.png" alt="病毒特征"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-6-2.png" alt="病毒特征"></p>
+<h4 id="节区头部表"><a href="#节区头部表" class="headerlink" title="节区头部表"></a>节区头部表</h4><pre><code>//每个节区的结构
+
+typedef struct{
+    Elf32_Word sh_name;            节区名称
+    Elf32_Word sh_type;            节区格式
+    Elf32_Word sh_flags;        节区相关标志(read、write、exec)
+    Elf32_Addr sh_addr;            地址
+    Elf32_Off sh_offset;        偏移
+    Elf32_Word sh_size;            大小
+    Elf32_Word sh_link;            给出此节区需要用到的索引成员链接（比如.dynsym---&gt;.dynstr）
+    Elf32_Word sh_info;            此成员给出的一些附加信息（与type有关）
+    Elf32_Word sh_addralign;    字节对齐
+    Elf32_Word sh_entsize;        节区中每条ent的size（若节区里面又分成了多条ent）
+}Elf32_Shdr;
+
+</code></pre><p><strong>sh_type</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-7.png" alt="病毒特征"></p>
+<p><strong>系统节区的功能属性</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-8.png" alt="病毒特征"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-8-1.png" alt="病毒特征"></p>
+<p><strong>动态连接</strong>过程所需要的信息由.dynsym、.dynstr、.interp、.hash、.dynamic、.rel、.rela、.got、.plt 等节提供</p>
+<p>.init 和.fini 节用于进程的初始化和终止过程。</p>
+<p>以点号”.”为前缀的节名字是为系统保留的</p>
+<p>节区功能属性及下面文字摘抄于广敏作者的csdn博客，以下为其链接地址</p>
+<p><a href="https://blog.csdn.net/u011298001/article/details/84862565" target="_blank" rel="noopener">https://blog.csdn.net/u011298001/article/details/84862565</a></p>
+<p>以下为readelf读出的节区头部表和section到segment的映射表</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-9.png" alt="病毒特征"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-9-1.png" alt="病毒特征"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/elf-10.png" alt="病毒特征"></p>
+<p>elf中重要的功能<strong>重定位</strong></p>
+<p>这里给重定位留着位置，现在总是半懂不懂的，先留着等过以后找时间补充</p>
+<p>其上内容借鉴于各大佬的博客，以下附上链接地址</p>
+<p><a href="https://blog.csdn.net/u011298001/article/details/84862565" target="_blank" rel="noopener">https://blog.csdn.net/u011298001/article/details/84862565</a><br><a href="http://https://blog.csdn.net/ljy1988123/article/details/50404642" target="_blank" rel="noopener">https://blog.csdn.net/ljy1988123/article/details/50404642</a><br><a href="https://www.52pojie.cn/thread-591986-1-1.html" target="_blank" rel="noopener">https://www.52pojie.cn/thread-591986-1-1.html</a></p>
+<h2 id="PE文件格式"><a href="#PE文件格式" class="headerlink" title="PE文件格式"></a>PE文件格式</h2><p>个人感觉PE文件结构看上去比ELF要友好那么一点点（可能是因为做windows恶意代码分析的缘故吧0 -0）</p>
+<p>废话不多说，先上一个PE文件结构的图</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-1.png" alt="pe文件结构图"></p>
+<p>此图为逆向工程核心原理上的结构图左边是磁盘上的结构右边是运行时映射到内存上的结构</p>
+<p>首先还是从“头”开始</p>
+<h3 id="PE文件头"><a href="#PE文件头" class="headerlink" title="PE文件头"></a>PE文件头</h3><h4 id="dos头（含dos存根）"><a href="#dos头（含dos存根）" class="headerlink" title="dos头（含dos存根）"></a>dos头（含dos存根）</h4><p>比较简单，这里就不列出全部了，我们只需要关注两个区域，图片在下面，在下一个是在PE_stu里面展示的，大致了解一下情况</p>
+<p><strong>e_magic：</strong>常数，文本值为MZ<br><strong>e_lfanew：</strong>NT头的偏移又或者说是dos头的大小</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-2.png" alt="dos头"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-2-1.png" alt="dos头"></p>
+<p>这里他的dos存根就是展示一下DOS操作系统不能运行，然后退出这个程序，算是一个小小的彩蛋吧，哈哈</p>
+<h4 id="NT头"><a href="#NT头" class="headerlink" title="NT头"></a>NT头</h4><p>这个头就比较重要了，他由两部分组成，一个是文件头一个是可选头，NT头是头里面最大的头</p>
+<pre><code>typedef struct _IMAGE_NT_HEADERS {
+    DWORD Signature;                签名PE
+    IMAGE_FILE_HEADER FileHeader;                文件头
+    IMAGE_OPTIONAL_HEADER32 OptionalHeader;        可选头
+} IMAGE_NT_HEADERS32, *PIMAGE_NT_HEADERS32;
+
+</code></pre><p><strong>文件头</strong></p>
+<pre><code>typedef struct _IMAGE_FILE_HEADER {
+    WORD    Machine;                文件运行的平台，比如x86，x86_64
+    WORD    NumberOfSections;        节区数目
+    DWORD   TimeDateStamp;            时间戳，换算可以参考病毒分析的lab1
+    DWORD   PointerToSymbolTable;    
+    DWORD   NumberOfSymbols;
+    WORD    SizeOfOptionalHeader;    可选头大小
+    WORD    Characteristics;        文件的属性
+} IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
+</code></pre><p><em>Machine</em></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-3.png" alt="NT-文件头-machine码对应"></p>
+<p><em>Characteristics</em></p>
+<p>这里我们只需要记住一些重要的就行比如0x0002（可执行）、0x0100（32位）、0x1000（系统文件）、0x2000（dll文件）<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-3-1.png" alt="NT-文件头-Characteristics码对应"></p>
+<p>图片来源于<a href="https://blog.csdn.net/adam001521/article/details/84658708" target="_blank" rel="noopener">adam001521的博客</a></p>
+<p><strong>可选头</strong></p>
+<pre><code>typedef struct _IMAGE_OPTIONAL_HEADER {
+    WORD    Magic;                            表明可选头类型（0x10b 32PE、0x20b 64PE）
+    BYTE    MajorLinkerVersion;                链接器的版本号
+    BYTE    MinorLinkerVersion;
+    DWORD   SizeOfCode;                        代码段的总长度
+    DWORD   SizeOfInitializedData;            初始化数据长度
+    DWORD   SizeOfUninitializedData;        未初始化数据长度
+    DWORD   AddressOfEntryPoint;            程序入口RVA exe的main、dll的DllMain、驱动的DriverEntry
+    DWORD   BaseOfCode;                        代码段起始的RVA
+    DWORD   BaseOfData;                        数据段起始的RVA
+    DWORD   ImageBase;                        映像（加载到内存上的）基地址
+    DWORD   SectionAlignment;                内存中节区地址起始最小值，比如0x1000则每个节的起始地址低12位都是0
+    DWORD   FileAlignment;                    文件中对齐值，同上文
+    WORD    MajorOperatingSystemVersion;
+    WORD    MinorOperatingSystemVersion;
+    WORD    MajorImageVersion;
+    WORD    MinorImageVersion;
+    WORD    MajorSubsystemVersion;
+    WORD    MinorSubsystemVersion;
+    DWORD   Win32VersionValue;                保留必须为0
+    DWORD   SizeOfImage;                    映射到内存的映像的大小
+    DWORD   SizeOfHeaders;                    头的大小，以FileAlignment对齐的
+    DWORD   CheckSum;
+    WORD    Subsystem;                        区分是系统文件还是可执行文件
+    WORD    DllCharacteristics;
+    DWORD   SizeOfStackReserve;
+    DWORD   SizeOfStackCommit;
+    DWORD   SizeOfHeapReserve;
+    DWORD   SizeOfHeapCommit;
+    DWORD   LoaderFlags;
+    DWORD   NumberOfRvaAndSizes;            数据目录数目，下面的数据目录是个数组，里面存着各种重要的数据的RVA和Size
+    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+} IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
+</code></pre><p><em>Subsystem</em></p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>含 义</th>
+<th>备 注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Driver文件</td>
+<td>系统驱动（如：ntfs.sys）</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>GUI文件</td>
+<td>窗口应用程序（如：notepad.exe）</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>CUI文件</td>
+<td>cmd程序（如：cmd.exe）</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>DataDirectory</strong>（结构就不放了，就一个RVA一个size）</p>
+<p>重要的是import[1]、export[0]、resource[2]、TLS[9]<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-4.png" alt="NT-可选头-DataDirectory"></p>
+<p>最后说明一下其十六进制数据<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-5.png" alt="NT头十六进制数据"></p>
+<h4 id="节区头"><a href="#节区头" class="headerlink" title="节区头"></a>节区头</h4><pre><code>typedef struct _IMAGE_SECTION_HEADER 
+{
+    BYTE Name[IMAGE_SIZEOF_SHORT_NAME];     节表名称,如“.text” 
+    union
+    {
+        DWORD PhysicalAddress;                 磁盘中的地址（物理地址）
+        DWORD VirtualSize;                     虚拟大小（节区映像大小）
+    }Misc;
+    DWORD VirtualAddress;             虚拟地址
+    DWORD SizeOfRawData;             磁盘中节区大小
+    DWORD PointerToRawData;         磁盘中节区偏移
+    DWORD PointerToRelocations;     在OBJ文件中使用，重定位的偏移
+    DWORD PointerToLinenumbers;     行号表的偏移（供调试使用地）
+    WORD NumberOfRelocations;         在OBJ文件中使用，重定位项数目
+    WORD NumberOfLinenumbers;         行号表中行号的数目
+    DWORD Characteristics;             节属性如可读，可写，可执行等
+} IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
+</code></pre><p><em>Characteristics</em><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-6.png" alt="节区属性表1"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-6-1.png" alt="节区属性表2"></p>
+<p>图片来源于<a href="https://www.cnblogs.com/qintangtao/archive/2013/01/11/2857180.html" target="_blank" rel="noopener">qintangtao</a>的博客园</p>
+<p>十六进制图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/PE—ELF/pe-7.png" alt="十六进制图"></p>
+<p>import导入<br>export导出<br>重定位<br>延迟重定位<br>loading。。。。。。</p>
+<p>感谢<br><a href="https://blog.csdn.net/adam001521/article/details/84658708" target="_blank" rel="noopener">adam001521师傅</a>提供的素材<br><a href="https://www.cnblogs.com/qintangtao/archive/2013/01/11/2857180.html" target="_blank" rel="noopener">qintangtao师傅</a>提供的图片</p>
 
         </div>
         <!-- .entry-content -->
@@ -373,7 +598,7 @@
           
             <div class="post-nepre half previous">
           
-            <a href="/2020/03/17/ctf/逆向练习/" rel="prev">
+            <a href="/2020/02/15/virus/恶意代码分析-lab3-4-5/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -381,7 +606,7 @@
               Previous Post</span>
               <div class="info">
                 <h3>
-                逆向练习</h3>
+                恶意代码分析-lab-3-4-5</h3>
                 <hr>
               </div>
             </a>
@@ -391,7 +616,7 @@
           
             <div class="post-nepre half next">
           
-            <a href="/2020/03/10/cve/poc脚本研究报告/" rel="next">
+            <a href="/2020/02/13/virus/恶意代码分析-lab1/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -399,7 +624,7 @@
               Next Post</span>
               <div class="info">
                 <h3>
-                poc脚本研究报告</h3>
+                恶意代码分析-lab1</h3>
                 <hr>
               </div>
             </a>
