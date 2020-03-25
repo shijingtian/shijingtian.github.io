@@ -347,15 +347,18 @@
 <p>默认支持多种架构。可以模拟 IA-32 (x86)个人电脑，AMD 64个人电脑，MIPS R4000, 升阳的SPARCsun3 与PowerPC(PReP 及 Power Macintosh)架构</p>
 <p>最关键是他是纯软件化实现硬件结构，做出这些东西的人真的不是人，牛逼</p>
 <p>经常跟kvm一起来使用的，KVM 是硬件辅助的虚拟化技术，主要负责 比较繁琐的 CPU 和内存虚拟化，而 Qemu 则负责 I/O 虚拟化</p>
-<p>整个程序的结构运行图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/cve/qemu/qemu结构图.png" alt="结构图1"><br>下图为qemu的翻译原理，guest code是模拟的cpu架构的字节码，通过翻译成中间TGC代码，在最后翻译成host代码也就是x86体系的代码<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/cve/qemu/qemu结构图.png" alt="结构图2"><br>简单来说就是一个虚拟机但是可以模拟不同的cpu架构，这是vm所做不到的，其中MIPS是固件用到的比较多的一种架构，所以可以用qemu来进行路由器模拟等等操作，逆向分析的一种小利器，但我现在还是入门，对很多工具了解的不是很多，需要再多多的去努力。</p>
+<p>整个程序的结构运行图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/cve/qemu/qemu结构图.png" alt="结构图1"><br>下图为qemu的翻译原理，guest code是模拟的cpu架构的字节码，通过翻译成中间TGC代码，在最后翻译成host代码也就是x86体系的代码<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/cve/qemu/qemu结构图-1.png" alt="结构图2"><br>简单来说就是一个虚拟机但是可以模拟不同的cpu架构，这是vm所做不到的，其中MIPS是固件用到的比较多的一种架构，所以可以用qemu来进行路由器模拟等等操作，逆向分析的一种小利器，但我现在还是入门，对很多工具了解的不是很多，需要再多多的去努力。</p>
 <p>然后就简单配置一下qemu，这里师傅们的博客都很全面，我在这里照搬一些，主要是说一下中间我遇到的一些问题。配置原理我打算之后好好看一下linux操作系统，疫情期间，网课还是很有用的</p>
-<p>安装：<br>    sudo apt-get install qemu </p>
-<pre><code>sudo apt-get install qemu-user-static
+<p>安装：</p>
+<pre><code>sudo apt-get install qemu 
+
+sudo apt-get install qemu-user-static
 
 sudo apt-get install qemu-system
 </code></pre><p>这个期间我出现了一个智商小插曲，apt-install之后我竟然自己通过命令行直接运行qemu，发现没反应，就开始怀疑了会人生。。。。这个程序本来就不能直接输命令行调用的，我镜像都没，用个泡泡茶壶</p>
-<p>安装网络配置工具（主要用来连接网络的）<br>    apt-get install bridge-utils uml-utilities</p>
-<p><strong>bridge-utils</strong>的一些介绍</p>
+<p>安装网络配置工具（主要用来连接网络的）</p>
+<pre><code>apt-get install bridge-utils uml-utilities
+</code></pre><p><strong>bridge-utils</strong>的一些介绍</p>
 <p>这里就是我的个人理解了，没有找到对uml-utilities的具体解释，但知道bridge-utils（brctl）的一些功能，创建我们之后要用到的在虚拟机里配置的网桥br0，还创建了要配置的虚拟机网卡，保证虚拟机可以与外界通讯<br><strong>brctl</strong>的的一些可行操作</p>
 <pre><code>#添加虚拟网桥
 brctl addbr br0
@@ -388,13 +391,21 @@ sudo /sbin/ifconfig $1 0.0.0.0 promisc up
 echo &quot;Adding $1 to br0...&quot;
 sudo /sbin/brctl addif br0 $1
 sleep 3
-</code></pre><p>chmod赋予文件可执行权限，然后重启网络<br>    sudo /etc/init.d/networking restart</p>
-<p>关闭eth0启动桥br0<br>    sudo ifdown eth0  </p>
-<pre><code>sudo ifup br0
+</code></pre><p>chmod赋予文件可执行权限，然后重启网络</p>
+<pre><code>sudo /etc/init.d/networking restart
+</code></pre><p>关闭eth0启动桥br0</p>
+<pre><code>sudo ifdown eth0  
+
+sudo ifup br0
 </code></pre><p>镜像下载<a href="https://people.debian.org/~aurel32/qemu/mips/" target="_blank" rel="noopener">https://people.debian.org/~aurel32/qemu/mips/</a><br>这里我跟师傅用的一样的debian_squeeze_mips_standard.qcow2和vmlinux-2.6.32-5-4kc-malta</p>
-<p>启动虚拟机<br>    sudo qemu-system-mips -M malta -kernel vmlinux-2.6.32-5-4kc-malta -hda debian_squeeze_mips_standard.qcow2 -append “root=/dev/sda1 console=tty0” -net nic,macaddr=00:16:3e:00:00:01 -net tap</p>
-<p>这时候成功就会登进去<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/cve/qemu/qemu登录.png" alt="登录界面"><br>如果你没有登录进去失败的话，看看镜像有没有错，登录密码和用户名都是root</p>
-<p>查询本机ip地址ifconfig，如果出现error，就想之前一下查询interfaces，把里面的eth0改成eth1，然后 ifup etf1，ip地址就有了。中间有个nano操作，nano interfaces进行修改，ctrl+x退出<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/cve/qemu/qemu效果图.png" alt="修改eth1效果图"><br>之后通过ssh连接虚拟机<br>    ssh root@虚拟机ip<br>通过scp将固件传送到虚拟机里，就可以开始分析啦<br>    scp -r /root/cve/wr940-root  root@虚拟机ip:/root/<br>ps：scp是通过ssh进行copy指令的，-r意思是文件迭代复制，就是全都复制过去，前面是发送方路径<strong>（千万记得加/root）</strong> 后面是接收方，空格也不要错，记得提前在目标虚拟机里mkdir一个root文件，什么名字都可以我这里跟师傅的博客取得一致。然后就复制上去了，就可以运行分析啥的啦，然后就是后面博客的事情啦~~~~</p>
+<p>启动虚拟机</p>
+<pre><code>sudo qemu-system-mips -M malta -kernel vmlinux-2.6.32-5-4kc-malta -hda debian_squeeze_mips_standard.qcow2 -append &quot;root=/dev/sda1 console=tty0&quot; -net nic,macaddr=00:16:3e:00:00:01 -net tap
+</code></pre><p>这时候成功就会登进去<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/cve/qemu/qemu登录.png" alt="登录界面"><br>如果你没有登录进去失败的话，看看镜像有没有错，登录密码和用户名都是root</p>
+<p>查询本机ip地址ifconfig，如果出现error，就想之前一下查询interfaces，把里面的eth0改成eth1，然后 ifup etf1，ip地址就有了。中间有个nano操作，nano interfaces进行修改，ctrl+x退出<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/cve/qemu/qemu效果图.png" alt="修改eth1效果图"><br>之后通过ssh连接虚拟机</p>
+<pre><code>ssh root@虚拟机ip
+</code></pre><p>通过scp将固件传送到虚拟机里，就可以开始分析啦</p>
+<pre><code>scp -r /root/cve/wr940-root  root@虚拟机ip:/root/
+</code></pre><p>ps：scp是通过ssh进行copy指令的，-r意思是文件迭代复制，就是全都复制过去，前面是发送方路径<strong>（千万记得加/root）</strong> 后面是接收方，空格也不要错，记得提前在目标虚拟机里mkdir一个root文件，什么名字都可以我这里跟师傅的博客取得一致。然后就复制上去了，就可以运行分析啥的啦，然后就是后面博客的事情啦~~~~</p>
 
         </div>
         <!-- .entry-content -->
@@ -423,9 +434,26 @@ sleep 3
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/2020/03/25/cve/路由器逆向分析——CVE-2017-17215复现/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                路由器逆向分析———CVE-2017-17215复现</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
         
           
-            <div class="post-nepre full next">
+            <div class="post-nepre half next">
           
             <a href="/2020/03/17/re/逆向杂项/" rel="next">
               <div class="background">
