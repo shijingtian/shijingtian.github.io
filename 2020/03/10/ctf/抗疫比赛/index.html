@@ -342,7 +342,24 @@
         <div class="entry-content">
           <p>这次比赛的质量挺高的，除了那个出错了的fxck，昨天纠结了一下午，后来程序更新也没通知，我是真的想日穿出题者难受，还有一个线性移位寄存器的题，后面我就等着wp自己再去复现一下，那一个我是真的没想出来</p>
 <p>#天津垓</p>
-<p>扔到ida里面分析，这里是第一个关键函数，按照他的指令就是把我们输入的值和Rising_Hopper!字符串做与和或的操作<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-1.png" alt="ida调试图"><br>得出来的值和下面的值比对<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-2.png" alt="ida调试图"><br>逆出字符串Caucasus@s_ability，显然不是flag在观察函数时，发现第二个关键函数<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-3.png" alt="key2"><br>对一大批数据进行了异或处理，异或字符串就是我们刚逆出来的Caucasus@s_ability，然后output脚本（这里可以直接ida复刻，但是也放出python的方法）<br>    ttt=”Caucasus@s_ability”<br>    f=open(“ppp”,”rb”)<br>    f1=open(“flag”,”wb”)<br>    p=1;i=0;p1=1<br>    while(p1):<br>        p1=f.read(1)<br>        p=int.from_bytes(p1,byteorder=’big’,signed=False)<br>        if(i&gt;=0xc4d and i&lt;=0xc4d+0x41e):<br>            n = p ^ ord(ttt[(i - 0xc4d) % 18])<br>            f1.write(n.to_bytes(length=1,byteorder=’big’,signed=False))<br>        else:   f1.write(bytes(p1))<br>    i += 1<br>然后key2就出来了，比对函数，最后按照逻辑逆出来就行，就一个计算逻辑<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-4.png" alt="key2"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-5.png" alt="key2"><br>脚本：<br>    res=[0x1EA272,0x206FC4,0x1D2203,2027349,2421009,1653372,2047032,2184813,2302911,2263545,1909251,2165130,1968300,2243862,2066715,2322594,1987983,2243862,1869885,2066715,2263545,1869885,964467,944784,944784,944784,728271,1869885,2263545,2283228,2243862,2184813,2165130,2027349,1987983,2243862,1869885,2283228,2047032,1909251,2165130,1869885,2401326,1987983,2243862,2184813,885735,2184813,2165130,1987983,2460375]<br>    for i in range(len(res)):<br>        print(chr(res[i]//0x4ce3),end=’’)<br>得到flag<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-5.png" alt="key2"></p>
+<p>扔到ida里面分析，这里是第一个关键函数，按照他的指令就是把我们输入的值和Rising_Hopper!字符串做与和或的操作<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-1.png" alt="ida调试图"><br>得出来的值和下面的值比对<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-2.png" alt="ida调试图"><br>逆出字符串Caucasus@s_ability，显然不是flag在观察函数时，发现第二个关键函数<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-3.png" alt="key2"><br>对一大批数据进行了异或处理，异或字符串就是我们刚逆出来的Caucasus@s_ability，然后output脚本（这里可以直接ida复刻，但是也放出python的方法）</p>
+<pre><code>ttt=&quot;Caucasus@s_ability&quot;
+f=open(&quot;ppp&quot;,&quot;rb&quot;)
+f1=open(&quot;flag&quot;,&quot;wb&quot;)
+p=1;i=0;p1=1
+while(p1):
+    p1=f.read(1)
+    p=int.from_bytes(p1,byteorder=&#39;big&#39;,signed=False)
+    if(i&gt;=0xc4d and i&lt;=0xc4d+0x41e):
+        n = p ^ ord(ttt[(i - 0xc4d) % 18])
+        f1.write(n.to_bytes(length=1,byteorder=&#39;big&#39;,signed=False))
+    else:   f1.write(bytes(p1))
+i += 1
+</code></pre><p>然后key2就出来了，比对函数，最后按照逻辑逆出来就行，就一个计算逻辑<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-4.png" alt="key2"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-5.png" alt="key2"><br>脚本：</p>
+<pre><code>res=[0x1EA272,0x206FC4,0x1D2203,2027349,2421009,1653372,2047032,2184813,2302911,2263545,1909251,2165130,1968300,2243862,2066715,2322594,1987983,2243862,1869885,2066715,2263545,1869885,964467,944784,944784,944784,728271,1869885,2263545,2283228,2243862,2184813,2165130,2027349,1987983,2243862,1869885,2283228,2047032,1909251,2165130,1869885,2401326,1987983,2243862,2184813,885735,2184813,2165130,1987983,2460375]
+for i in range(len(res)):
+    print(chr(res[i]//0x4ce3),end=&#39;&#39;)
+</code></pre><p>得到flag<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/抗疫-天津垓-5.png" alt="key2"></p>
 <p>后来还遇到了一个base58出错的题，自闭了一个下午，难受，不过后来发现自己的base58脚本写的有些问题，也算是有一小点点的补偿吧。。还有一个虚拟机的，这里就不说了，就是麻烦，其实逻辑很简单。然后等我更新那个寄存器吧</p>
 <h1 id="gatesXgame"><a href="#gatesXgame" class="headerlink" title="gatesXgame"></a>gatesXgame</h1><p>放上官方wp：<a href="https://mp.weixin.qq.com/s?__biz=MzU4MTg1NzAzMA==&amp;mid=2247483865&amp;idx=1&amp;sn=718b2929fc7aac8ac550a4c6160e5bb4&amp;chksm=fd407bb0ca37f2a649951d2643dce6bbbcb376ef3fed2153b4b0f953c7dcafd150d32d69c296&amp;mpshare=1&amp;scene=23&amp;srcid=&amp;sharer_sharetime=1583753556598&amp;sharer_shareid=f0e8c979e190e71002368e0459a8dd84#rd+" target="_blank" rel="noopener">null指针</a><br>放上我的朋友的wp：<a href="http://dayjun.top/2020/03/11/%E7%A9%BA%E6%8C%87%E9%92%88%E5%85%AC%E5%BC%80%E8%B5%9B%E9%80%86%E5%90%91wp/" target="_blank" rel="noopener">高高有话说</a></p>
 <p>这道题的答题思路就是一个去花，然后走迷宫，其中新颖的点就是每走一步就换更换系统框架，在x86和64之间轮换跳转，这里我就直接搬来官方wp给的两个花结构</p>
@@ -367,8 +384,20 @@ __asm __emit 0xba \
 __asm jlabel##idx : \
 __asm call jlabel_##idx  \
 }
-</code></pre><p>可以自己慢慢去patch，然后我自己写了一个通用的patch脚本，以后只要遇到是有结构性的花指令，都可以用这个脚本来patch，刚patch出来的时候我的心情是无比激动的，呃啊啊啊啊啊！总算patch成了！<br>下面是脚本<br>    h1=[0xEB,0x03,0x88,0xC3,0xBA,0xE8,0xF9,0xFF,0xFF,0xFF]        #花结构<br>    h2=[0xE8,0x04,0x00,0x00,0x00,0x77,0xEB,0x07,0x88,0x36,0x83,0x04,0x24,0x01,0xC3]<br>    data=[]<br>    def check(i,rep):                #负责数组匹配和patch<br>        k=1<br>        while(k&lt;len(rep)):            #这里匹配不同就退出来<br>            if data[i+k]!=rep[k]:<br>                return 0<br>            k+=1<br>        for j in range(len(rep)):    #匹配成功之后这里进行patch<br>            data[i+j]=0x90</p>
-<pre><code>with open(&quot;123.exe&quot;,&quot;rb&quot;) as f:        #打开文件变成数组data
+</code></pre><p>可以自己慢慢去patch，然后我自己写了一个通用的patch脚本，以后只要遇到是有结构性的花指令，都可以用这个脚本来patch，刚patch出来的时候我的心情是无比激动的，呃啊啊啊啊啊！总算patch成了！<br>下面是脚本</p>
+<pre><code>h1=[0xEB,0x03,0x88,0xC3,0xBA,0xE8,0xF9,0xFF,0xFF,0xFF]        #花结构
+h2=[0xE8,0x04,0x00,0x00,0x00,0x77,0xEB,0x07,0x88,0x36,0x83,0x04,0x24,0x01,0xC3]
+data=[]
+def check(i,rep):                #负责数组匹配和patch
+    k=1
+    while(k&lt;len(rep)):            #这里匹配不同就退出来
+        if data[i+k]!=rep[k]:
+            return 0
+        k+=1
+    for j in range(len(rep)):    #匹配成功之后这里进行patch
+        data[i+j]=0x90
+
+with open(&quot;123.exe&quot;,&quot;rb&quot;) as f:        #打开文件变成数组data
     a=f.read(1)
     while(a):
         data.append(int.from_bytes(a,byteorder=&#39;little&#39;,signed=False))
