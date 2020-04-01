@@ -476,7 +476,7 @@ for i in it:
     re.S 即为 . 并且包括换行符在内的任意字符（. 不包括换行符）
     re.U 表示特殊字符集 \w, \W, \b, \B, \d, \D, \s, \S 依赖于 Unicode 字符属性数据库
     re.X 为了增加可读性，忽略空格和 # 后面的注释
-</code></pre><p>表达式类型：<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达是类型图1.png" alt="表达是类型图1"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达是类型图2.png" alt="表达是类型图2"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达是类型图3.png" alt="表达是类型图3"></p>
+</code></pre><p>表达式类型：<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达式类型1.png" alt="表达是类型图1"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达式类型2.png" alt="表达是类型图2"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达式类型3.png" alt="表达是类型图3"></p>
 <p>## </p>
 <h1 id="pe-elf相关文件处理"><a href="#pe-elf相关文件处理" class="headerlink" title="pe\elf相关文件处理"></a>pe\elf相关文件处理</h1><h2 id="PE修改OEP"><a href="#PE修改OEP" class="headerlink" title="PE修改OEP"></a>PE修改OEP</h2><p>这个操作很简单，修改一个值就ok了，可以PE-tools，可以直接二进制编译器，都可，亲测有效</p>
 <p>首先自己写了一个c语言脚本做判断，编译出来发现是jump起步，因为用的vs，不过这都无所谓了。我们发现这堆jmp下面就有一堆空代码所以直接利用<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/oep-od.png" alt="od图"></p>
