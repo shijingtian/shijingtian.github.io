@@ -447,6 +447,37 @@ print(&quot;decode ========&gt;   &quot;,output)
 <p>花简单来说就是junk_data，做一些无意义的汇编操作，并且让ida反汇编失败，这里因为花很简单，所以我们直接手动patch就行了，看到一些奇怪的汇编指令，比如突然jmp，毫无意义的地址，clc等等，都可以对其进行重组，以下是patch点。<br>这里会是一个call loc，nop e8，后面的数c成代码下面的图同理，那个F1@g字符串是key，千万别nop<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-2-1.png" alt="ida图"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-2-2.png" alt="ida图"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-2-3.png" alt="ida图"></p>
 <p>最后效果图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-3-1.png" alt="去花图"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-花-3-2.png" alt="去花图"></p>
 <p>然后逻辑就很简单了简单的异或，这里就不说了，只是说一下花，就不浪费时间做异或练习了</p>
+<p>#攻防世界————first（XCTF 3rd-NJCTF-2017）<br>开始有个线程把我吓一跳，后来发现对题目难度没什么影响，扔到ida里面分析，首先输入，然后将我们输入的值进行了一个归总异或运算，得到一个值v11<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-first-1.png" alt="归总值"><br>后面循环建立线程<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-first-2.png" alt="创建线程"><br>其中有一个start_routine，关键函数，进去以后发现会对我们输入的值进行一个函数改造，然后判断，这里我坑了一会，这个函数是md5看出来了，但是出来的判定结果都是16位，我以为是按照[8:-8]的格式得到的16位md5，没想到直接取得开头16位，emmmmm<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-first-3.png" alt="sr函数"></p>
+<p>然后就是爆破脚本</p>
+<pre><code>import time
+import hashlib
+ch=&quot;flag&quot;;p=[&quot;beac2821ece8fc5c&quot;, &quot;ad749265ca7503ef&quot;, &quot;4386b38fc12c4227&quot;, &quot;b03ecc45a7ec2da7&quot;, &quot;be3c5ffe121734e8&quot;]
+time_start=time.clock()
+flag=&quot;juhu&quot;
+for ans in p:
+    m1=0x30;m2=0x30;m3=0x30;m4=0x30
+    while(m1&lt;=0x74):
+        m=hashlib.md5()
+        ch=chr(m1)+chr(m2)+chr(m3)+chr(m4)
+        m.update(ch)
+        if(ans in m.hexdigest()):
+            flag+=ch
+            break
+        if(m4&lt;=0x74): m4+=1
+        else:
+            m4=0x30
+            if(m3&lt;=0x74): m3+=1
+            else:
+                m3=0x30
+                if(m2&lt;=0x74): m2+=1
+                else:
+                    m2=0x30
+                    m1+=1
+print flag
+time_end=time.clock()
+print &quot;use time====&gt;&quot; + str(time_en-time_start)
+</code></pre><p>得到juhuhfenlapsdunuhjifiuer，这里的脚本顺序是不太对的，因为他分了线程，线程的先后顺序是不一样的，题目解题的要求是最后res_md5的顺序按照，0,4,8,14,10,c（十六进制），排出来的，所以要调整一下顺序，flag就出来了，或者可以直接再写个脚本，把之后的那个鉴定给爆破出来，也可以直接动调一步一步调，很简单就出来了goodjobyougetthisflag233</p>
+<p>我开始是直接动调的，但这里附上脚本把还是，算是练习一下</p>
 
         </div>
         <!-- .entry-content -->
