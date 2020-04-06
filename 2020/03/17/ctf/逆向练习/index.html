@@ -475,9 +475,54 @@ for ans in p:
                     m1+=1
 print flag
 time_end=time.clock()
-print &quot;use time====&gt;&quot; + str(time_en-time_start)
+print &quot;use time====&gt;&quot; + str(time_end-time_start)
 </code></pre><p>得到juhuhfenlapsdunuhjifiuer，这里的脚本顺序是不太对的，因为他分了线程，线程的先后顺序是不一样的，题目解题的要求是最后res_md5的顺序按照，0,4,8,14,10,c（十六进制），排出来的，所以要调整一下顺序，flag就出来了，或者可以直接再写个脚本，把之后的那个鉴定给爆破出来，也可以直接动调一步一步调，很简单就出来了goodjobyougetthisflag233</p>
 <p>我开始是直接动调的，但这里附上脚本把还是，算是练习一下</p>
+<p>后来在写脚本的时候遇到了点问题，后来才明白这个题目一个根本意思，开始根据我们输入计算得出来的v11的输入顺序是按照他给的md5表的顺序来的，然后后面赋值的顺序又会发生变化，与之前的计算v11的输入顺序是不一样的，所以说是有两个顺序，如果这里他弄得恶心点，让第二次赋值输入顺序和md5顺序完全不一样，那可能就需要点时间了，有点恶心，但感觉这个题出的恰到好处，挺有意思的，稍微恶心点，就偏脑筋急转弯了。</p>
+<p>ps：这里的脚本让我同时学到了一个找出所有排序的一个递归算法，真的牛逼，也会记录在<a href="https://shijingtian.github.io/2020/03/31/re/逆向杂项/" target="_blank" rel="noopener">逆向杂项</a>里面<br>脚本：</p>
+<pre><code>#排序算法：这里就是用了一个换头的方法，我让a做第一位，剩下的递归，一直到只有一位，返回这一位
+def px_re(s=&#39;&#39;):
+    if(len(s)==1): return [s]       #递归的末尾值
+    arr=[]                          #盛放每一次递归的出来的顺序数组
+    for i in range(len(s)):
+        for j in px_re(s[0:i]+s[i+1:]):    #这里就是讲开头的值取出，进行递归，比如&#39;abcd&#39;，最开头可能取a\b\c\d四个值，用一个len把开头的可能性全取出来，然后往后递归
+            arr.append(s[i]+j)          #数组拼接
+    return arr                          #返回每次递归产生的数组
+
+#解题思路
+ans=&#39;juhuhfenlapsiuerhjifdunu&#39;;s=[];s1=[]     #之前爆破脚本得到的字符串
+#建立一个对应字典，这里就是因为直接用数组没法经过px_re，只能用字符串，所以我们可以用字典来替代
+for i in range(len(ans)//4):
+    s.append(ans[i*4:i*4+4])
+for i in range(len(ans)//4):
+    s1.append(chr(ord(&#39;a&#39;)+i))
+dic_arr=dict(zip(s1,s))
+#print(dic_arr)
+#此题产生v11加密算法
+def code(s):
+    res=0
+    for i in range(len(s)):
+        res^=(ord(s[i])+i)
+    return res
+cons1=code(ans)
+#print(cons1)
+px_arr=px_re(&#39;abcdef&#39;)                     #创建序列到px_arr
+res_arr=[]
+for i in range(len(px_arr)):
+    tmp=&quot;&quot;
+    for j in range(6):
+        tmp+=dic_arr[px_arr[i][j]]
+    res_arr.append(tmp)
+#print(res_arr)
+dic=[254 ,233 ,244 ,226 ,241 ,250 ,244 ,228 ,240 ,231 ,228 ,229 ,227 ,242 ,245 ,239 ,232 ,255 ,246 ,244 ,253 ,180 ,165 ,178]    #题目的字典建立
+#print(res_arr)
+#下面为最终爆破flag算法
+for i in range(len(res_arr)):
+    res=&quot;&quot;
+    for j in range(len(res_arr[i])):
+        res+=chr(ord(res_arr[i][j])^dic[j]^cons1)
+    print(res,res_arr[i],hex(cons1))
+</code></pre><p>结果：<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/攻防世界-first-4.png" alt="爆破出flag"></p>
 
         </div>
         <!-- .entry-content -->
