@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">逆向杂项 | 蝉3301</title>
+  <title itemprop="name">ctf工具总结 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -307,7 +307,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      逆向杂项</h1>
+      ctf工具总结</h1>
       <p class="entry-census">
         <span>
           <a href="shijingtian.github.io">
@@ -319,7 +319,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2020-3-31<span class="bull">
+        2020-4-21<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -333,149 +333,7 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>在逆向学习里面遇到的一些比较方便的算法啥的，就总结在这里，虽然杂但是应该会有用&lt;(<em>￣▽￣</em>)/</p>
-<h1 id="IDA-IDC"><a href="#IDA-IDC" class="headerlink" title="IDA-IDC"></a>IDA-IDC</h1><p>（自从idapython能用之后，我打算放弃idc了，所以idc到这里就没了，idc确实没有python方便，我认了，来自某高的建议（手动狗头））<br><strong>定义：</strong><br>auto i,j,k;<br>extern outsideGlobal;        //引入全局变量声明</p>
-<h2 id="常用函数"><a href="#常用函数" class="headerlink" title="常用函数"></a>常用函数</h2><p>void PatchByte(long addr , long val) 设置虚拟地址addr处的一个字节值，PatchByte可更换为<br>PatchWord，PatchDword设置虚拟地址addr处的2字节和4字节值。</p>
-<p><strong>long Byte</strong>（long addr） 从虚拟地址addr读取一个字节值，Byte可更换为Word，Dword读取2字节和4字节值。</p>
-<p><strong>void Message</strong>（string format , …）,在输出窗口打印一条格式化消息。</p>
-<p><strong>void print</strong>（…），在输出窗口中打印每个参数的字符串表示形式。</p>
-<p>long atol（string val），将10进制val转化成对应整数值。</p>
-<p>long xtol（string val），将16进制val转化成对应整数值。</p>
-<p>long ord（string ch），返回单字符字符串ch的ASCII值。</p>
-<p>string Name（long addr），返回与给定地址有关的名称，如果该位置没有名称，则返回空字符串。</p>
-<h2 id="string用法"><a href="#string用法" class="headerlink" title="string用法"></a>string用法</h2><p>和python一样</p>
-<pre><code>auto str = “String to slice”;
-auto s1, s2, s3, s4;
-s1 = str[7:9];          //&#39;to&#39;
-s2 = str[ :6];           //&#39;String&#39;
-s3 = str[10: ];           //&#39;slice&#39;
-s4 = str[5];               //&#39;g&#39;
-
-</code></pre><p>上述内容摘抄于<a href="https://blog.csdn.net/charlesgodx/article/details/84866365" target="_blank" rel="noopener">Thunder_J</a>的csdn</p>
-<h2 id="注意问题"><a href="#注意问题" class="headerlink" title="注意问题"></a>注意问题</h2><p>里面的语法不支持i+=1;只支持<strong>i=i+1</strong>；<br>想打印出ascii值，需要的是Message(“%x”,ord(xxx)),必须要有前面的格式化字符，不然只会给你打印出字符来。</p>
-<h2 id="ctf实践"><a href="#ctf实践" class="headerlink" title="ctf实践"></a>ctf实践</h2><pre><code>auto i;
-for(i=0x40213b;i&gt;=0x402124;i--)
-{
-    Message((Byte(i)^6)-1);        //我发现他自己转成字符串了，真方便O(∩_∩)O~~
-}
-Message(&quot;\n&quot;)
-</code></pre><p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/idc-1.png" alt="idc功能实现"></p>
-<h1 id="IDA-Python"><a href="#IDA-Python" class="headerlink" title="IDA-Python"></a>IDA-Python</h1><p>不管怎么样，python牛逼</p>
-<pre><code>ea代表地址
-一些常规操作，暂时还没咋用到
-
-①here()==ScreenEA() #打印当前光标标记地址
-②GetDisasm(ea) #打印地址处汇编指令
-③GetMnem(ea) #只打印指令例如mov cmp之类
-④GetOpnd(ea,n) #操作数，rax，rdx之类，n有0,1，分别表这句汇编指令的某个操作数
-⑥SegName(ea) SegStart(ea) SegEnd(ea) #段名称、段初始地址、段结束地址
-⑦for fuc in Functions():
-   print hex(fuc),GetFunctionName(fuc) //遍历函数
-
-**显示地址处的字节数**
-Byte()         #同理还有word(ea)、Dword(ea)、Qword(ea)、GetFloat(ea)、GetDouble(ea)
-**patch数据**
-PatchByte(ea, value)、PatchWord(ea, value)、PatchDword(ea, value)
-</code></pre><p>这里展现一下效果图<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/ida-python.png" alt="python功能实现"></p>
-<h2 id="实际运用"><a href="#实际运用" class="headerlink" title="实际运用"></a>实际运用</h2><p>这里先放一个恶意代码里面说的修改call颜色，等以后再放自己实践用到的<br>    from idautils import <em><br>    from idc import </em></p>
-<pre><code>heads = Heads(SegStart(ScreenEA()),SegEnd(ScreenEA()))
-fuc=[]
-for i in heads:
-    if GetMnem(i) == &quot;call&quot;:
-        fuc.append(i)
-print(len(fuc))
-for i in fuc:
-    SetColor(i,CIC_ITEM,0xc7fdff)
-</code></pre><p><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/ida-python-call-color.png" alt="call改色"></p>
-<h1 id="C语言"><a href="#C语言" class="headerlink" title="C语言"></a>C语言</h1><h2 id="常见函数"><a href="#常见函数" class="headerlink" title="常见函数"></a>常见函数</h2><h3 id="atoi-amp-amp-itoa"><a href="#atoi-amp-amp-itoa" class="headerlink" title="atoi &amp;&amp; _itoa"></a>atoi &amp;&amp; _itoa</h3><p><strong>atoi</strong></p>
-<p>参数：char</p>
-<p>作用：字符串（字符串为char类型）转int型</p>
-<pre><code>a=&quot;123&quot;;
-b=atoi(a);
-printf(b);
-
-输出：123（且int b=123）
-</code></pre><p><strong>atoi有一个特性，遇到非数字就会截止转换，但前面的会转换</strong></p>
-<p><strong>_itoa(value,string,radix)</strong></p>
-<p>参数<br>value：欲转换的数据。<br>string：目标字符串的地址。<br>radix：转换后的进制数，可以是10进制、16进制等，范围必须在 2-36。</p>
-<p>作用：int型转字符串</p>
-<p>做了一道功放世界新放的逆向，名称：Mysterious<br>难度不大，想试着直接静态调试，发现卡在了一个函数身上，思路也是卡死了，应该想到这是一道溢出的<br>ida图片分析如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/c-atoi-1.png" alt="Mysterious"><br>思路想通了很简单，溢出string给到v12、v13、v14，然后string给v10,就是卡在了atoi遇到非数字就截止但前面都会转换的功能上，知道之后，输入122xyz，122给了v10，剩下xyz分别给了v12、v13、v14，得到结果<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/c-atoi-2.png" alt="Mysterious"></p>
-<p>本内容中的参数摘抄于<a href="https://blog.csdn.net/lanzhihui_10086/article/details/39960027" target="_blank" rel="noopener">lanzhihui_</a>的csdn</p>
-<h2 id="C格式问题"><a href="#C格式问题" class="headerlink" title="C格式问题"></a>C格式问题</h2><p>1.for循环，想要4个4个的跳，第三部分格式应为i=i+4而不是i+=4，不然会报Missing brace</p>
-<h1 id="python"><a href="#python" class="headerlink" title="python"></a>python</h1><h2 id="pyton的一些骚姿势（就是简便代码写法）"><a href="#pyton的一些骚姿势（就是简便代码写法）" class="headerlink" title="pyton的一些骚姿势（就是简便代码写法）"></a>pyton的一些骚姿势（就是简便代码写法）</h2><p>for循环可以写成    <code>[print(i) for i in range(10)]</code>    （后面的很多式子都会用到这个）</p>
-<p>字符和数组[asc码]的拼接    <code>str+=&quot;&quot;.join([chr(i) for i in (arr)])</code>    </p>
-<p>a<sub>1</sub>,a<sub>2</sub>的快速建立(z3用的比较方便)：<code>[print(&quot;a%d=%d&quot; % (i,arr[i])) for i in range(10)]</code>(将arr值分别给a1,a2,a3)</p>
-<h2 id="字典的建立"><a href="#字典的建立" class="headerlink" title="字典的建立"></a>字典的建立</h2><p>个人感觉没啥用，但也算是知识点，就放到这里来</p>
-<pre><code>a=[1,2,3];b=[&#39;a&#39;,&#39;b&#39;,&#39;c&#39;]
-ddd=zip(a,b)        #zip()将a,b打包成元祖，就是1和a一组，2和b一组
-dic=dict(ddd)        #建立dict字典    dict正常建立：dict={1:&#39;a&#39;,2:&#39;b&#39;}    
-print(dic)    
-</code></pre><p>效果图如下<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/python-2.png" alt="python字典"><br>这里说一下，我在做ctf移位复原器的时候，想用这个，但发现如果里面dic[]里面的值是一种式子而不是直接的指定字符，就类似与是dic[mov_dic[i+2]]而不是dic[1]返回的类型就会一直是nobetype，什么也没法转换的一种类型，我人都傻了，技能有限，等以后有这个实力了，再继续利用</p>
-<h2 id="re正则表达式的应用"><a href="#re正则表达式的应用" class="headerlink" title="re正则表达式的应用"></a>re正则表达式的应用</h2><p>这种库就是类似于搜索关键字，或者是把一种写作形式换成另一种写作形式，自动化的文本替换，学习一下，在z3里面用的比较多，可以格式化很多东西，到时候二进制文件内部编辑应该会方便许多，先学会</p>
-<p>###函数介绍：<br><strong>re.match(pattern,string,flags)</strong>        #pattern：表达式、string：目标字符串<br>只与string开头进行匹配，开头没有返回none，有的话返回相应的<strong>group字符串</strong></p>
-<p><strong>re.search(pattern,string,flags)</strong><br>从整个string进行匹配，返回同理match</p>
-<p><strong>re.sub(pattern,repl,string,count,flags)</strong>        #count：替换最大次数，默认0全替换<br>从string匹配pattern然后替换成repl</p>
-<p><strong>re.compile(pattern,flag)</strong><br>产生一种pattern，用来直接送给match、search用</p>
-<p><strong>re.findall(string, pos, endpos)</strong>        #pos字符串起始位置 endpos结束位置<br>把所有匹配都找出来，match、search只找一次，用数组的形式传出来,只能和<strong>compile</strong>合作使用</p>
-<p><strong>re.finditer(pattern,string，flags)</strong><br>迭代方式把所有匹配表示出来，只能通过for i in it的方式表达，it的类型是callable-iterator，数组引不出来</p>
-<p>###实例：</p>
-<pre><code>#!/usr/bin/python
-# -*- coding: UTF-8 -*-
-import re
-s1=&quot;I&quot;
-s2=&quot;I Love you baby&quot;
-s3=&#39;baby&#39;
-
-#match、search匹配
-match1=re.match(s1,s2)                            
-print(match1.group())                                
-search1=re.search(s3,s2)
-print(search1.span(),search2.span())
-
-#group展示（这里(.*)算一个group，.*只进行匹配不放进group）
-seobj=re.search(r&#39;(.*) (.*?) you .*&#39;,s2)
-print(seobj.group())
-print(seobj.group(1))
-print(seobj.group(2))
-
-#sub应用
-phone = &quot;2004-959-559 # 这是一个国外电话号码&quot; 
-# 删除字符串中的 Python注释 
-num = re.sub(r&#39;#.*&#39;, &quot;&quot;, phone)
-print &quot;电话号码是: &quot;, num
-print phone
-# 删除非数字(-)的字符串 
-num = re.sub(r&#39;\D&#39;, &quot;&quot;, phone)        #（\D将除数字外的东西全部去掉）
-print &quot;电话号码是 : &quot;, num
-
-#compile、findall、finditer应用
-patt=re.compile(r&#39;\d+&#39;)
-m = patt.search(&quot;abxs12s45sads74&quot;)
-print m.group()
-print m.start()
-print m.end()
-print m.span()
-m = patt.findall(&quot;abxs12s45sads74&quot;)
-print m
-it = re.finditer(r&quot;\d+&quot;,&quot;12a32bc43jf3&quot;) 
-for i in it: 
-    print (i.group() )
-</code></pre><p>效果图：<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/re效果图.png" alt="re效果图"></p>
-<p>###flag库和表达式类型</p>
-<pre><code>#flag库
-    re.I 忽略大小写
-    re.L 表示特殊字符集 \w, \W, \b, \B, \s, \S 依赖于当前环境
-    re.M 多行模式
-    re.S 即为 . 并且包括换行符在内的任意字符（. 不包括换行符）
-    re.U 表示特殊字符集 \w, \W, \b, \B, \d, \D, \s, \S 依赖于 Unicode 字符属性数据库
-    re.X 为了增加可读性，忽略空格和 # 后面的注释
-</code></pre><p>表达式类型：<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达式类型1.png" alt="表达是类型图1"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达式类型2.png" alt="表达是类型图2"><br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/表达式类型3.png" alt="表达是类型图3"></p>
-<p>## </p>
-<h1 id="pe-elf相关文件处理"><a href="#pe-elf相关文件处理" class="headerlink" title="pe\elf相关文件处理"></a>pe\elf相关文件处理</h1><h2 id="PE修改OEP"><a href="#PE修改OEP" class="headerlink" title="PE修改OEP"></a>PE修改OEP</h2><p>这个操作很简单，修改一个值就ok了，可以PE-tools，可以直接二进制编译器，都可，亲测有效</p>
-<p>首先自己写了一个c语言脚本做判断，编译出来发现是jump起步，因为用的vs，不过这都无所谓了。我们发现这堆jmp下面就有一堆空代码所以直接利用<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/oep-od.png" alt="od图"></p>
-<p>空位置写入jmp的机器码，卡了一会，明白了原理，E9是jmp后面四个字节（dword）用来放偏移，上偏就是负数，下偏就是正数，base值是这块指令地址+5，然后根据计算，我们要去0x343，在0x398+5进行改变，既0x39d，然后0x343-0x39d=0xffffffa6,写上去就行，上图末端有展示</p>
-<p>然后PE-tools修改oep<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/oep-pe-tools.png" alt="pe-tools"><br>二进制工具修改oep<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/oep-re-tools.png" alt="二进制工具"></p>
-<p>最终结果oep都发生了改变<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re-misc/oep-result.png" alt="结果图"></p>
+          <h1 id="patch爆破（L-W都可）"><a href="#patch爆破（L-W都可）" class="headerlink" title="patch爆破（L-W都可）"></a>patch爆破（L-W都可）</h1><p>这种方法主要是用来抢签到题一血的，flag字符串之间没有关系且有对错回复的题目都可用（linux的话把exe去掉就行）<br>    from subprocess import Popen,PIPE<br>    path=”dump.exe”<br>    flag=””<br>    ‘’’<br>    print(“please input first_address====&gt;\t”);start=int(input())<br>    print(“please input end_address====&gt;\t”);end=int(input())<br>    print(“please input code_string====&gt;\t”);firs=input()<br>    ‘’’<br>    start=1;end=23;firs=”01837c2418”;process_ans=’Good’<br>    for i in range(start,end):<br>        patch=bytes.fromhex(firs+hex(i).replace(“0x”,””).zfill(2))<br>        fea=bytes.fromhex(firs+”01”)<br>        f1=open(“dump.exe”,”wb”)<br>        f2=open(“1.exe”,”rb”)<br>        arr=f2.read()<br>        arr=arr.replace(fea,patch)<br>        f1.write(arr)<br>        f1.close()<br>        f2.close()<br>        for j in range(0x10,0x80):<br>            tmp=flag+chr(j)<br>            p=Popen(path,stdin=PIPE,stdout=PIPE)<br>            p.stdin.write(tmp.encode())<br>            if(process_ans in str(p.communicate()[0])):<br>                flag=tmp<br>                print (flag)<br>                break<br><strong>题目：OBFU的复仇.exe</strong><br>2000多个函数，分析算法可能会死掉，主要用了OBFU的混淆，然后他的结果之间互相没有关系，而且会有反馈，所以可以用做一个实例。<br>ida伪代码<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/ctf-tools.png" alt="ida伪代码"><br>逻辑很简单，经过一个函数sub_41644A的运算，然后进行了和运算和异或运算最后得到相应的数值，直接上爆破代码，得出结果，有趣<br><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/blog/re/ctf-tools-patch爆破.png" alt="爆破结果"></p>
 
         </div>
         <!-- .entry-content -->
@@ -504,28 +362,11 @@ for i in it:
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2020/04/21/ctf/ctf总结工具/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                ctf工具总结</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2020/03/31/re/z3学习/" rel="next">
+            <a href="/2020/03/31/re/逆向杂项/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
               </div>
@@ -533,7 +374,7 @@ for i in it:
               Next Post</span>
               <div class="info">
                 <h3>
-                z3学习</h3>
+                逆向杂项</h3>
                 <hr>
               </div>
             </a>
