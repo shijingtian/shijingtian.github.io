@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2020-09-08T14:38:38.500Z</updated>
+  <updated>2020-09-08T15:10:13.128Z</updated>
   <id>/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="/2020/09/08/cve/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA-32-64%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%8C%BA%E5%88%AB%E6%80%9D%E8%80%83/"/>
     <id>/2020/09/08/cve/pwn-栈溢出-32-64函数调用区别思考/</id>
     <published>2020-09-08T14:32:03.000Z</published>
-    <updated>2020-09-08T14:38:38.500Z</updated>
+    <updated>2020-09-08T15:10:13.128Z</updated>
     
     <summary type="html">
     
